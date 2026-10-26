@@ -1,0 +1,68 @@
+<Project>
+
+  <!-- Central Package Management: every PackageReference version in the solution is pinned
+       here so shared dependencies (e.g. Avalonia) cannot drift between projects. Projects
+       reference packages WITHOUT a Version attribute (<PackageReference Include="Foo" />);
+       the version comes from the matching <PackageVersion> below.
+
+       Uncomment and fill the groups the solution actually needs. -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <!-- Core library. PolySharp and System.Buffers are the netstandard2.0-support pair: they match the
+       conditional PackageReferences in dotnet-solution-setup/templates/library.csproj, which reference
+       them ONLY under Condition="'$(TargetFramework)' == 'netstandard2.0'". Drop both if the library
+       does not multi-target netstandard2.0. -->
+  <!--
+  <ItemGroup>
+    <PackageVersion Include="Example.Core" Version="1.0.0" />
+    <PackageVersion Include="System.Buffers" Version="4.6.1" />
+    <PackageVersion Include="PolySharp" Version="1.16.0" />
+  </ItemGroup>
+  -->
+
+  <!-- App hosting: every application (CLI, worker, Desktop) builds an IHost (dotnet-solution-setup). -->
+  <!--
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
+  </ItemGroup>
+  -->
+
+  <!-- CLI -->
+  <!--
+  <ItemGroup>
+    <PackageVersion Include="System.CommandLine" Version="2.0.0" />
+  </ItemGroup>
+  -->
+
+  <!-- Desktop (Avalonia). This file is the one place the Avalonia version is pinned. The Avalonia.*
+       entries share ONE version and the Enigma packages carry an Avalonia floor: bump them together,
+       per the version-coupled-ecosystems rule in dotnet-solution-config. Avalonia.Headless.XUnit is
+       for test projects; AvaloniaUI.DiagnosticsSupport is the Debug-only dev-tools package. The two
+       Enigma pins are the versions their skills document: enigma-avalonia-desktop v3 documents
+       Enigma.Avalonia.Desktop 1.2.0, enigma-icons-avalonia v3 documents Enigma.Icons.Avalonia 1.0.0 -
+       move a pin and its skill together. -->
+  <!--
+  <ItemGroup>
+    <PackageVersion Include="Avalonia" Version="12.1.4" />
+    <PackageVersion Include="Avalonia.Desktop" Version="12.1.4" />
+    <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.1.4" />
+    <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.1.4" />
+    <PackageVersion Include="Avalonia.Headless.XUnit" Version="12.1.4" />
+    <PackageVersion Include="Enigma.Avalonia.Desktop" Version="1.2.0" />
+    <PackageVersion Include="Enigma.Icons.Avalonia" Version="1.0.0" />
+    <PackageVersion Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3" />
+    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+  -->
+
+  <!-- Tests (MTP-native: xunit.v3 only; Microsoft.Testing.Extensions.CodeCoverage for coverage). No Microsoft.NET.Test.Sdk. -->
+  <!--
+  <ItemGroup>
+    <PackageVersion Include="xunit.v3" Version="4.0.0" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.10.0" />
+  </ItemGroup>
+  -->
+
+</Project>

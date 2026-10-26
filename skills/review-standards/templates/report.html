@@ -1,0 +1,214 @@
+<!doctype html>
+<!--
+review-standards — HTML report template. /review writes docs/review/<date>-<scope>.html from the Markdown
+report, after it: same findings, same order, same text. The Markdown is the source of truth.
+
+Placeholders (fill every one; HTML fragments unless noted):
+  {{title}} {{date}} {{scope}}                      text — title is "Code review — <scope> — <date>"
+  {{counts.critical}} {{counts.high}} {{counts.medium}} {{counts.low}} {{counts.total}}   numbers
+  {{baseline.build}} {{baseline.test}}              text — "0 errors, 12 warnings" / "passed 184 · failed 0"
+  {{baseline.note}}                                 one sentence
+  {{method}}      <ul> of the Scope & method bullets
+  {{summary}}     the three verdict lines as <p>
+  {{conformance}} one block per work item (below), or <p class="muted">Not a work-item scope.</p>
+  {{findings}}    one <details> per finding (below), severity order; or <p class="muted">No findings.</p>
+  {{good}}        <ul> of the In good shape lines
+  {{handoff}}     the two commands as <pre> blocks and the closing sentence
+
+Finding snippet — `open` on Critical and High, closed otherwise:
+  <details class="finding" data-sev="high" id="EXC-03" open>
+    <summary><span class="sev high">High</span><span class="fid">EXC-03</span>Empty catch blocks swallow
+      I/O errors on the save path<span class="count">3 locations</span></summary>
+    <h4>Locations</h4>
+    <ul class="loc"><li><code>src/App/Services/FileSync.cs:88</code></li></ul>
+    <h4>Why it matters</h4><p>…</p>
+    <h4>Recommended fix</h4><p>…</p>
+    <p class="rule">Rule — review-standards <code>reference/exceptions.md</code> §Catch blocks</p>
+  </details>
+
+Conformance block:
+  <section class="item"><h3>FEATURE-3A7F — User authentication</h3>
+    <table><tr><th>Criterion</th><th>Status</th><th>Evidence</th></tr>
+      <tr><td>1. …</td><td><span class="st met">met</span></td><td><code>src/Auth/LoginService.cs:40</code></td></tr>
+    </table>
+    <p><b>Outside the plan</b> — …</p><p><b>Done doc vs diff</b> — …</p>
+  </section>
+  Status classes: met · partial · notmet · nv (not verifiable).
+
+No script element, no external href/src. The severity filter is CSS-only (:has on the checkboxes). In print,
+::details-content expands every finding; a browser without it prints the open ones only.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}}</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --surface: #ffffff; --surface-2: #f0f0ec; --text: #1f2328; --text-2: #59636e;
+    --border: #d9d9d4; --accent: #2a5db0; --code-bg: #eeeeea; --max: 1120px;
+    --critical: #7a1c1c; --critical-bg: #f9dede; --high: #b42318; --high-bg: #fde8e6;
+    --medium: #a35d00; --medium-bg: #fff1dc; --low: #2f6f3e; --low-bg: #e4f3e7; --info: #2a5db0; --info-bg: #e5edfa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151719; --surface: #1d2023; --surface-2: #24282c; --text: #e6e8ea; --text-2: #a0a8b0;
+      --border: #363b41; --accent: #7aa7f0; --code-bg: #2a2e33;
+      --critical: #ff6b6b; --critical-bg: #40191c; --high: #ff8a80; --high-bg: #3a1f1d;
+      --medium: #f2b45a; --medium-bg: #3a2c15; --low: #8fd39a; --low-bg: #1c3222; --info: #7aa7f0; --info-bg: #1b2a44;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { font-size: 16px; scroll-padding-top: 96px; }
+  body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.5;
+         font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  main, footer, nav.toc, .bar-in { max-width: var(--max); margin: 0 auto; padding: 0 16px; }
+  header.bar { position: sticky; top: 0; z-index: 10; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .bar-in { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 28px; padding-top: 10px; padding-bottom: 10px; }
+  .bar h1 { font-size: 1.25rem; margin: 0; letter-spacing: -0.01em; }
+  .bar .sub { color: var(--text-2); margin: 0; font-size: 0.9rem; }
+  .counts, .baseline { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 0.92rem; }
+  .counts b { font-variant-numeric: tabular-nums; margin-right: 6px; }
+  .baseline .b { color: var(--text-2); }
+  nav.toc { margin-top: 18px; }
+  nav.toc ol { display: flex; flex-wrap: wrap; gap: 6px 18px; list-style: none; padding: 0; margin: 0; }
+  nav.toc a { color: var(--accent); text-decoration: none; font-size: 0.95rem; }
+  nav.toc a:hover { text-decoration: underline; }
+  main { padding-bottom: 64px; }
+  section { margin-top: 40px; }
+  h2 { font-size: 1.45rem; margin: 0 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  h3 { font-size: 1.15rem; margin: 24px 0 8px; }
+  h4 { font-size: 0.95rem; margin: 12px 0 2px; color: var(--text-2); }
+  p { margin: 8px 0; }
+  a { color: var(--accent); }
+  code, pre { font-family: ui-monospace, "Cascadia Mono", Consolas, "JetBrains Mono", Menlo, monospace; font-size: 0.88em; }
+  code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+  pre { background: var(--code-bg); padding: 12px 14px; border-radius: 6px; overflow-x: auto; line-height: 1.45; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.93rem; margin: 10px 0; }
+  th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--surface-2); font-weight: 600; }
+  .muted { color: var(--text-2); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 14px 0; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .card .n { font-size: 1.9rem; font-weight: 700; line-height: 1.1; }
+  .card .l { color: var(--text-2); font-size: 0.9rem; }
+  .sev { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+         padding: 2px 8px; border-radius: 999px; vertical-align: 2px; margin-right: 8px; }
+  .sev.critical { color: var(--critical); background: var(--critical-bg); }
+  .sev.high { color: var(--high); background: var(--high-bg); }
+  .sev.medium { color: var(--medium); background: var(--medium-bg); }
+  .sev.low { color: var(--low); background: var(--low-bg); }
+  .fid { font-family: ui-monospace, Consolas, monospace; color: var(--text-2); margin-right: 8px; }
+  .st { font-weight: 600; }
+  .st.met { color: var(--low); } .st.partial { color: var(--medium); } .st.notmet { color: var(--high); } .st.nv { color: var(--text-2); }
+  .filter { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; margin: 6px 0 14px; font-size: 0.92rem; }
+  .filter label { cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .filter input { accent-color: var(--accent); margin: 0; }
+  details.finding { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--border);
+                    border-radius: 8px; padding: 10px 16px; margin: 12px 0; }
+  details.finding[data-sev="critical"] { border-left-color: var(--critical); }
+  details.finding[data-sev="high"] { border-left-color: var(--high); }
+  details.finding[data-sev="medium"] { border-left-color: var(--medium); }
+  details.finding[data-sev="low"] { border-left-color: var(--low); }
+  details.finding summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; align-items: baseline; flex-wrap: wrap; }
+  details.finding summary::-webkit-details-marker { display: none; }
+  details.finding summary::before { content: "▸"; color: var(--text-2); margin-right: 8px; font-weight: 400; }
+  details.finding[open] summary::before { content: "▾"; }
+  details.finding .count { margin-left: auto; color: var(--text-2); font-weight: 400; font-size: 0.85rem; }
+  details.finding ul.loc { margin: 2px 0 0; padding-left: 20px; }
+  details.finding ul.loc li { margin: 2px 0; }
+  details.finding .rule { color: var(--text-2); font-size: 0.9rem; margin-top: 10px; }
+  body:has(#f-critical:not(:checked)) details.finding[data-sev="critical"] { display: none; }
+  body:has(#f-high:not(:checked)) details.finding[data-sev="high"] { display: none; }
+  body:has(#f-medium:not(:checked)) details.finding[data-sev="medium"] { display: none; }
+  body:has(#f-low:not(:checked)) details.finding[data-sev="low"] { display: none; }
+  footer { color: var(--text-2); font-size: 0.9rem; border-top: 1px solid var(--border); padding-top: 14px; padding-bottom: 40px; }
+  @media (max-width: 640px) { .bar h1 { font-size: 1.05rem; } .card .n { font-size: 1.5rem; } }
+  @media print {
+    :root { --bg: #fff; --surface: #fff; --surface-2: #f3f3f3; --code-bg: #f3f3f3; }
+    header.bar { position: static; }
+    nav.toc, .filter { display: none; }
+    details.finding::details-content { content-visibility: visible; display: block; }
+    details.finding, .card, tr { break-inside: avoid; }
+    a { color: inherit; text-decoration: none; }
+    section { margin-top: 28px; }
+  }
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <div><h1>{{title}}</h1><p class="sub">{{scope}} · {{date}} · <code>/review</code> v1, read-only</p></div>
+    <div class="counts">
+      <span class="sev critical">Critical</span><b>{{counts.critical}}</b>
+      <span class="sev high">High</span><b>{{counts.high}}</b>
+      <span class="sev medium">Medium</span><b>{{counts.medium}}</b>
+      <span class="sev low">Low</span><b>{{counts.low}}</b>
+    </div>
+    <div class="baseline"><span class="b">Build</span> {{baseline.build}} <span class="b">Tests</span> {{baseline.test}}</div>
+  </div>
+</header>
+<nav class="toc" aria-label="Contents">
+  <ol>
+    <li><a href="#method">Scope &amp; method</a></li>
+    <li><a href="#baseline">Baseline</a></li>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#conformance">Plan conformance</a></li>
+    <li><a href="#findings">Findings</a></li>
+    <li><a href="#good">In good shape</a></li>
+    <li><a href="#handoff">Hand-off</a></li>
+  </ol>
+</nav>
+<main>
+<section id="method">
+  <h2>Scope &amp; method</h2>
+  {{method}}
+</section>
+<section id="baseline">
+  <h2>Baseline</h2>
+  <table>
+    <tr><th>Step</th><th>Result</th></tr>
+    <tr><td><code>dotnet build</code></td><td>{{baseline.build}}</td></tr>
+    <tr><td><code>dotnet test</code></td><td>{{baseline.test}}</td></tr>
+  </table>
+  <p>{{baseline.note}}</p>
+</section>
+<section id="summary">
+  <h2>Summary</h2>
+  <div class="cards">
+    <div class="card"><div class="n">{{counts.critical}}</div><div class="l">Critical</div></div>
+    <div class="card"><div class="n">{{counts.high}}</div><div class="l">High</div></div>
+    <div class="card"><div class="n">{{counts.medium}}</div><div class="l">Medium</div></div>
+    <div class="card"><div class="n">{{counts.low}}</div><div class="l">Low</div></div>
+    <div class="card"><div class="n">{{counts.total}}</div><div class="l">Total findings</div></div>
+  </div>
+  {{summary}}
+</section>
+<section id="conformance">
+  <h2>Plan conformance</h2>
+  {{conformance}}
+</section>
+<section id="findings">
+  <h2>Findings</h2>
+  <div class="filter">
+    <span class="muted">Show:</span>
+    <label><input type="checkbox" id="f-critical" checked><span class="sev critical">Critical</span></label>
+    <label><input type="checkbox" id="f-high" checked><span class="sev high">High</span></label>
+    <label><input type="checkbox" id="f-medium" checked><span class="sev medium">Medium</span></label>
+    <label><input type="checkbox" id="f-low" checked><span class="sev low">Low</span></label>
+  </div>
+  {{findings}}
+</section>
+<section id="good">
+  <h2>In good shape</h2>
+  {{good}}
+</section>
+<section id="handoff">
+  <h2>Hand-off</h2>
+  {{handoff}}
+</section>
+</main>
+<footer>Written by <code>/review</code> from <code>{{scope}}.md</code> — the Markdown report is the source; this page carries the same findings in the same order.</footer>
+</body>
+</html>

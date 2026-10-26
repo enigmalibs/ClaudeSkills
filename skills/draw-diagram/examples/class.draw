@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 2,
+  "diagramType": "Class",
+  "title": "Payment methods",
+  "nodes": [
+    {
+      "$type": "class",
+      "id": "3f8e1a72-4c05-4b9e-9d21-a67f30c81b04",
+      "bounds": { "x": 120, "y": 40, "width": 250, "height": 90 },
+      "zIndex": 0,
+      "kind": "Interface",
+      "name": "IPaymentMethod",
+      "members": [
+        { "visibility": "Public", "name": "authorize", "type": "bool", "parameters": "amount: decimal", "kind": "Operation" }
+      ]
+    },
+    {
+      "$type": "class",
+      "id": "74d2b9c1-58e3-4f0a-b1c6-92d84e7a3f15",
+      "bounds": { "x": 120, "y": 210, "width": 250, "height": 80 },
+      "zIndex": 1,
+      "kind": "Class",
+      "name": "PaymentMethodBase",
+      "isAbstract": true,
+      "members": [
+        { "visibility": "Protected", "name": "id", "type": "Guid", "kind": "Field" },
+        { "visibility": "Public", "name": "authorize", "type": "bool", "parameters": "amount: decimal", "kind": "Operation", "isAbstract": true }
+      ]
+    },
+    {
+      "$type": "class",
+      "id": "c59a04e7-21bd-4c88-a3f2-6b70d19e845c",
+      "bounds": { "x": 430, "y": 210, "width": 170, "height": 140 },
+      "zIndex": 2,
+      "kind": "Enum",
+      "name": "PaymentStatus",
+      "members": [
+        { "name": "Pending", "kind": "EnumLiteral" },
+        { "name": "Authorized", "kind": "EnumLiteral" },
+        { "name": "Captured", "kind": "EnumLiteral" },
+        { "name": "Failed", "kind": "EnumLiteral" }
+      ]
+    },
+    {
+      "$type": "class",
+      "id": "e8b64f03-97ac-4d15-8e2a-f04c3b7d2691",
+      "bounds": { "x": 40, "y": 430, "width": 170, "height": 70 },
+      "zIndex": 3,
+      "kind": "Class",
+      "name": "CardPayment",
+      "members": [
+        { "visibility": "Private", "name": "details", "type": "CardDetails", "kind": "Field" }
+      ]
+    },
+    {
+      "$type": "class",
+      "id": "1d7c25a9-b3e8-4762-9f04-58c1a6d0e3b7",
+      "bounds": { "x": 270, "y": 430, "width": 170, "height": 70 },
+      "zIndex": 4,
+      "kind": "Class",
+      "name": "WalletPayment",
+      "members": [
+        { "visibility": "Private", "name": "provider", "type": "string", "kind": "Field" }
+      ]
+    },
+    {
+      "$type": "class",
+      "id": "62f0d8b4-e19c-4a37-bd58-30a7f2c4e916",
+      "bounds": { "x": 40, "y": 580, "width": 170, "height": 80 },
+      "zIndex": 5,
+      "kind": "Class",
+      "name": "CardDetails",
+      "members": [
+        { "name": "pan", "type": "string", "kind": "Field" },
+        { "name": "expiry", "type": "string", "kind": "Field" }
+      ]
+    }
+  ],
+  "connectors": [
+    {
+      "id": "9a35c7e2-f60d-4b18-a927-c4e85d1f0b63",
+      "sourceNodeId": "74d2b9c1-58e3-4f0a-b1c6-92d84e7a3f15",
+      "targetNodeId": "3f8e1a72-4c05-4b9e-9d21-a67f30c81b04",
+      "kind": "Realization",
+      "route": "Orthogonal"
+    },
+    {
+      "id": "0b84e2d6-73af-4c50-9e18-d25b6a90c7f4",
+      "sourceNodeId": "e8b64f03-97ac-4d15-8e2a-f04c3b7d2691",
+      "targetNodeId": "74d2b9c1-58e3-4f0a-b1c6-92d84e7a3f15",
+      "kind": "Generalization",
+      "route": "Orthogonal"
+    },
+    {
+      "id": "58c1f7a3-06be-4d92-b740-1e93a5c8d206",
+      "sourceNodeId": "1d7c25a9-b3e8-4762-9f04-58c1a6d0e3b7",
+      "targetNodeId": "74d2b9c1-58e3-4f0a-b1c6-92d84e7a3f15",
+      "kind": "Generalization",
+      "route": "Orthogonal"
+    },
+    {
+      "id": "d6294b80-c5e1-4f76-83ad-97f0b2e64c15",
+      "sourceNodeId": "74d2b9c1-58e3-4f0a-b1c6-92d84e7a3f15",
+      "targetNodeId": "c59a04e7-21bd-4c88-a3f2-6b70d19e845c",
+      "kind": "DirectedAssociation",
+      "route": "Straight",
+      "centerLabel": "status"
+    },
+    {
+      "id": "47e0a9d5-812f-4c3b-965c-0db8e1f5a729",
+      "sourceNodeId": "e8b64f03-97ac-4d15-8e2a-f04c3b7d2691",
+      "targetNodeId": "62f0d8b4-e19c-4a37-bd58-30a7f2c4e916",
+      "kind": "Composition",
+      "route": "Straight"
+    }
+  ],
+  "metadata": {
+    "createdUtc": "2026-07-01T12:00:00+00:00",
+    "modifiedUtc": "2026-07-01T12:00:00+00:00"
+  }
+}

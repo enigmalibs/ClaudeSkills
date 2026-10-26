@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 2,
+  "diagramType": "Freeform",
+  "title": "Input validation flow",
+  "nodes": [
+    {
+      "$type": "shape",
+      "id": "9e4b2a06-c718-4d53-8f9e-06a3d5c2b174",
+      "bounds": { "x": 230, "y": 40, "width": 140, "height": 50 },
+      "zIndex": 0,
+      "kind": "Terminator",
+      "text": "Start"
+    },
+    {
+      "$type": "shape",
+      "id": "50c7e1f3-8d26-4b98-a04c-e19f75b3d820",
+      "bounds": { "x": 240, "y": 150, "width": 120, "height": 60 },
+      "zIndex": 1,
+      "kind": "Rectangle",
+      "text": "Validate input"
+    },
+    {
+      "$type": "shape",
+      "id": "a3f60d94-1e5c-4872-b6f3-c805a2d97e41",
+      "bounds": { "x": 230, "y": 270, "width": 140, "height": 80 },
+      "zIndex": 2,
+      "kind": "Diamond",
+      "text": "Valid?"
+    },
+    {
+      "$type": "shape",
+      "id": "6b95c0e8-42df-4a17-93b8-5d20f6c4e839",
+      "bounds": { "x": 240, "y": 410, "width": 120, "height": 60 },
+      "zIndex": 3,
+      "kind": "Rectangle",
+      "text": "Save record"
+    },
+    {
+      "$type": "shape",
+      "id": "f7203c5a-b96e-4c40-8d15-72e8a0b4c596",
+      "bounds": { "x": 510, "y": 280, "width": 120, "height": 60 },
+      "zIndex": 4,
+      "kind": "Rectangle",
+      "text": "Show error"
+    },
+    {
+      "$type": "shape",
+      "id": "1849d6f2-0ac3-4e7b-a52d-c9b03e6f1785",
+      "bounds": { "x": 230, "y": 530, "width": 140, "height": 50 },
+      "zIndex": 5,
+      "kind": "Terminator",
+      "text": "End"
+    }
+  ],
+  "connectors": [
+    {
+      "id": "27c5a8e0-63bf-4d21-9e84-b0f61c3d5a97",
+      "sourceNodeId": "9e4b2a06-c718-4d53-8f9e-06a3d5c2b174",
+      "targetNodeId": "50c7e1f3-8d26-4b98-a04c-e19f75b3d820",
+      "kind": "DirectedAssociation",
+      "route": "Straight"
+    },
+    {
+      "id": "8fd104b6-a5e2-4c98-b371-64d0e2a8c5f0",
+      "sourceNodeId": "50c7e1f3-8d26-4b98-a04c-e19f75b3d820",
+      "targetNodeId": "a3f60d94-1e5c-4872-b6f3-c805a2d97e41",
+      "kind": "DirectedAssociation",
+      "route": "Straight"
+    },
+    {
+      "id": "c1b83e57-d40a-4f26-8a9d-e5720c4b6f13",
+      "sourceNodeId": "a3f60d94-1e5c-4872-b6f3-c805a2d97e41",
+      "targetNodeId": "6b95c0e8-42df-4a17-93b8-5d20f6c4e839",
+      "kind": "DirectedAssociation",
+      "route": "Straight",
+      "centerLabel": "yes"
+    },
+    {
+      "id": "30a6f9d2-15c8-4be0-97f4-a2c8d5e01b67",
+      "sourceNodeId": "a3f60d94-1e5c-4872-b6f3-c805a2d97e41",
+      "targetNodeId": "f7203c5a-b96e-4c40-8d15-72e8a0b4c596",
+      "kind": "DirectedAssociation",
+      "route": "Straight",
+      "centerLabel": "no"
+    },
+    {
+      "id": "db54c2e8-79f0-4a35-8261-f3e90a7d4c58",
+      "sourceNodeId": "f7203c5a-b96e-4c40-8d15-72e8a0b4c596",
+      "targetNodeId": "50c7e1f3-8d26-4b98-a04c-e19f75b3d820",
+      "kind": "DirectedAssociation",
+      "route": "Orthogonal",
+      "bendPoints": [
+        { "x": 690, "y": 310 },
+        { "x": 690, "y": 180 }
+      ]
+    },
+    {
+      "id": "645fe0a9-2b8d-4c71-b95e-07d3c1f6a284",
+      "sourceNodeId": "6b95c0e8-42df-4a17-93b8-5d20f6c4e839",
+      "targetNodeId": "1849d6f2-0ac3-4e7b-a52d-c9b03e6f1785",
+      "kind": "DirectedAssociation",
+      "route": "Straight"
+    }
+  ],
+  "metadata": {
+    "createdUtc": "2026-07-01T12:00:00+00:00",
+    "modifiedUtc": "2026-07-01T12:00:00+00:00"
+  }
+}

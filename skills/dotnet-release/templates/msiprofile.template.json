@@ -1,0 +1,30 @@
+{
+  "appName": "{{APP_NAME}}",
+  "installPath": "{{INSTALL_PATH}}",
+  "releasePath": "{{RELEASE_PATH}}",
+  "scope": "{{SCOPE}}",
+  "version": "{{VERSION}}",
+  "productId": "{{PRODUCT_ID}}",
+  "upgradeCode": "{{UPGRADE_CODE}}",
+  "manufacturer": "{{MANUFACTURER}}",
+  "productIcon": "{{PRODUCT_ICON}}",
+  "compression": "{{COMPRESSION}}",
+  "outputPath": "{{OUTPUT_PATH}}",
+  "msiFilename": "{{MSI_FILENAME}}",
+  "shortcuts": [
+    {
+      "shortcutPath": "%Desktop%",
+      "shortcutName": "{{APP_NAME}}",
+      "targetPath": "[INSTALLDIR]\\{{TARGET_EXE}}",
+      "iconPath": "{{PRODUCT_ICON}}",
+      "arguments": ""
+    },
+    {
+      "shortcutPath": "%ProgramMenu%",
+      "shortcutName": "{{APP_NAME}}",
+      "targetPath": "[INSTALLDIR]\\{{TARGET_EXE}}",
+      "iconPath": "{{PRODUCT_ICON}}",
+      "arguments": ""
+    }
+  ]
+}

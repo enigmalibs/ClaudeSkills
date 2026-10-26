@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 2,
+  "diagramType": "Er",
+  "title": "Orders schema",
+  "nodes": [
+    {
+      "$type": "entity",
+      "id": "8c2d1e94-5a07-4b63-9f28-d41c7e0a6b35",
+      "bounds": { "x": 40, "y": 40, "width": 250, "height": 100 },
+      "zIndex": 0,
+      "name": "users",
+      "columns": [
+        { "name": "id", "type": "int", "isPrimaryKey": true, "isNullable": false },
+        { "name": "email", "type": "varchar(255)", "isNullable": false, "isUnique": true },
+        { "name": "created_at", "type": "timestamp", "isNullable": false }
+      ]
+    },
+    {
+      "$type": "entity",
+      "id": "3e97a0c2-d815-4f4a-8b60-27c5f9d1e483",
+      "bounds": { "x": 410, "y": 40, "width": 210, "height": 120 },
+      "zIndex": 1,
+      "name": "orders",
+      "columns": [
+        { "name": "id", "type": "int", "isPrimaryKey": true, "isNullable": false },
+        { "name": "user_id", "type": "int", "isForeignKey": true, "isNullable": false },
+        { "name": "status", "type": "varchar(20)", "isNullable": false },
+        { "name": "placed_at", "type": "timestamp", "isNullable": false }
+      ]
+    },
+    {
+      "$type": "entity",
+      "id": "b50f68e1-29ac-4d07-a3c9-84e2d6b1f570",
+      "bounds": { "x": 410, "y": 260, "width": 250, "height": 140 },
+      "zIndex": 2,
+      "name": "order_items",
+      "columns": [
+        { "name": "id", "type": "int", "isPrimaryKey": true, "isNullable": false },
+        { "name": "order_id", "type": "int", "isForeignKey": true, "isNullable": false },
+        { "name": "sku", "type": "varchar(64)", "isNullable": false },
+        { "name": "quantity", "type": "int", "isNullable": false },
+        { "name": "unit_price", "type": "decimal(10,2)", "isNullable": false }
+      ]
+    }
+  ],
+  "connectors": [
+    {
+      "id": "f14a7d38-06ce-4b92-8d57-3a90e5c2b816",
+      "sourceNodeId": "3e97a0c2-d815-4f4a-8b60-27c5f9d1e483",
+      "targetNodeId": "8c2d1e94-5a07-4b63-9f28-d41c7e0a6b35",
+      "kind": "Relationship",
+      "sourceCardinality": "ZeroOrMany",
+      "targetCardinality": "One",
+      "route": "Orthogonal",
+      "centerLabel": "user_id"
+    },
+    {
+      "id": "6d83b2f0-4a1e-4c69-bf05-e928c7d4a153",
+      "sourceNodeId": "b50f68e1-29ac-4d07-a3c9-84e2d6b1f570",
+      "targetNodeId": "3e97a0c2-d815-4f4a-8b60-27c5f9d1e483",
+      "kind": "Relationship",
+      "sourceCardinality": "OneOrMany",
+      "targetCardinality": "One",
+      "route": "Orthogonal",
+      "centerLabel": "order_id"
+    }
+  ],
+  "metadata": {
+    "createdUtc": "2026-07-01T12:00:00+00:00",
+    "modifiedUtc": "2026-07-01T12:00:00+00:00"
+  }
+}

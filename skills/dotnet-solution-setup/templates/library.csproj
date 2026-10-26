@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <!-- netstandard2.0 + the house modern-.NET set (dotnet-solution-setup, "Target frameworks"). A
+         library that narrows it documents the reason here. -->
+    <TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <!-- NuGet packaging metadata (PackageId, Version, Title, Description, PackageTags,
+       PackageReadmeFile/PackageLicenseFile + their packing ItemGroup, RepositoryUrl,
+       PackageProjectUrl, PackageReleaseNotes) is deliberately absent: it is added at release
+       time by the dotnet-release skill, not at bootstrap. -->
+  <!-- LangVersion / Nullable / ImplicitUsings / TreatWarningsAsErrors are deliberately absent:
+       they come from Directory.Build.props (dotnet-solution-config) and must never be repeated
+       per-project. No Version attributes either — versions live in Directory.Packages.props (CPM). -->
+  <!-- System.Buffers (Span/Memory/ArrayPool support) is framework-provided on net8.0+; it is only
+       needed as an explicit package on netstandard2.0. Referencing it on a modern net target would raise
+       NU1510 and fail the zero-warnings build. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Buffers" />
+  </ItemGroup>
+  <!-- PolySharp: polyfills modern C# on netstandard2.0. Compile-only (PrivateAssets=all). -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="PolySharp" PrivateAssets="all" />
+  </ItemGroup>
+</Project>
