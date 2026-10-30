@@ -3,7 +3,7 @@ description: House code review of a .NET solution, of the roadmap work items you
 argument-hint: "[<ID>… | <path> | free text: scope, \"only XAML and logging\", \"use sub-agents\"] (nothing = the full solution)"
 disable-model-invocation: true
 metadata:
-  version: "1.4.0"
+  version: "1.5.0"
 ---
 
 # Role
@@ -12,7 +12,7 @@ You are a Senior Software Developer reviewing a .NET solution against the house 
 # Process
 
 ## Phase 1: Standards and rulebook
-1. **Load the `review-standards` skill** — severities, dimensions, the finding and report shapes, the reference checklists, the templates. Everything below defers to it.
+1. **Load the `review-standards` skill** — severities, dimensions, the finding and report shapes, the reference checklists, the templates. Everything below defers to it. **Then load `html-report`** for its build script only: its base directory locates `scripts/new_report.py`, and `review-standards`' content fragment replaces its gather, plan and write steps and its component catalogue.
 2. **Find the solution:** the `.slnx` or `.sln` at the repository root (`git rev-parse --show-toplevel`). None → print `review: no .NET solution at <root> — /review covers .NET solutions only.` and stop.
 3. **Load the rulebook** from what the solution references (`Directory.Packages.props`, the csproj files): `dotnet-di-design`, `dotnet-async`, `csharp-extension-methods`, `dotnet-solution-config` and `dotnet-solution-setup` always; `communitytoolkit-mvvm` when CommunityToolkit.Mvvm is referenced; `avalonia` or `wpf` by UI framework; `enigma-avalonia-desktop` and `enigma-icons-avalonia` when their packages are referenced; `xunit-v3` when a test project exists. Do **not** load `dev-workflow` or `vibe-workflow`: the three facts you need are here — the roadmap is `docs/roadmap.md`, a dev's record is `docs/done/<ID>*.md`, and every dev commit is scoped by its base ID, a phase in its title — `feat(FEATURE-3A7F): add login flow (PHASE01)`.
 
@@ -35,8 +35,8 @@ With sub-agents asked for: one agent per dimension, each given the scope, the ru
 
 ## Phase 5: Report and hand-off
 1. Write `docs/review/<yyyy-mm-dd>-<scope>.md` from the skill's `templates/report.md` — `<scope>` is `solution`, the IDs lowercased joined by `-`, or the path's last segment; a same-day rerun overwrites. Zero findings still produces the report.
-2. Write `docs/review/<yyyy-mm-dd>-<scope>.html` from `templates/report.html`, after the Markdown and from it only (the skill's *HTML rendering*).
-3. Print the severity tally, both paths, and this hand-off:
+2. Build `docs/review/<yyyy-mm-dd>-<scope>.html` from the Markdown with `html-report`, per the skill's *HTML rendering*: the fragment from `templates/report-content.html` in your scratchpad, then the build command. When it cannot be built — a refusal, no Python 3 — print `review: HTML report skipped — <reason>.` and keep the Markdown.
+3. Print the severity tally, both paths (or the Markdown path and the skip line), and this hand-off:
 
    ```
    Next: /interview @docs/review/<yyyy-mm-dd>-<scope>.md     (plan the CODE-REVIEW item, keep/drop findings)
@@ -45,7 +45,7 @@ With sub-agents asked for: one agent per dimension, each given the scope, the ru
    ```
 
 # Rules
-- Read-only: never edit code, `docs/roadmap.md` or a plan file; never commit, branch or switch. Your only writes are the two report files; your only commands are read-only git, `dotnet build` and `dotnet test`.
+- Read-only: never edit code, `docs/roadmap.md` or a plan file; never commit, branch or switch. Your only writes are the two report files, plus your scratchpad (the findings file, the HTML fragment); your only commands are read-only git, `dotnet build`, `dotnet test` and `html-report`'s build script.
 - Never ask a question mid-run. The one exception: an argument text that contradicts itself (two scopes, "only X" and "skip X") — ask once, then run.
 - The house skills are the rulebook as written; where the codebase diverges from one consistently, it is one Low finding, not a campaign.
 - Report what you found, not what you expected: an empty dimension says so in one line.

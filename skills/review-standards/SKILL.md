@@ -2,7 +2,7 @@
 name: review-standards
 description: Use when running the house /review code review — the severity scale, the review dimensions and their rulebook, the finding and report shapes, and the reference checklists for SOLID, XAML, logging, exceptions, security, style, performance and tests. Loaded by /review.
 metadata:
-  version: "1.2.0"
+  version: "2.0.0"
 ---
 
 # Review standards — the house code-review checklist
@@ -98,7 +98,13 @@ Status is `met`, `partial`, `not met` or `not verifiable` (a manual test, an ext
 
 ## HTML rendering
 
-`docs/review/<yyyy-mm-dd>-<scope>.html`, written after the Markdown and from it only, from `templates/report.html`: same findings, same order, same text — the Markdown is the source of truth. Fill every placeholder: `{{title}}`, `{{date}}`, `{{scope}}`, `{{counts.critical}}`, `{{counts.high}}`, `{{counts.medium}}`, `{{counts.low}}`, `{{counts.total}}`, `{{baseline.build}}`, `{{baseline.test}}`, `{{baseline.note}}`, `{{method}}`, `{{summary}}`, `{{conformance}}`, `{{findings}}`, `{{good}}`, `{{handoff}}`. Each finding is one `<details class="finding" data-sev="<severity>" id="<KEY-NN>">` — the snippet and the conformance block are in the template's leading comment — `open` for Critical and High. The severity filter is CSS-only; no `<script>`, no external `href`/`src`.
+`docs/review/<yyyy-mm-dd>-<scope>.html`, an `html-report` report written after the Markdown and from it only: same sections, findings, order and text — the Markdown is the source of truth. Fill `templates/report-content.html` per its leading comment into a fragment in your scratchpad, then build it with `html-report`'s script (`py -3` on Windows):
+
+```bash
+python3 "<html-report dir>/scripts/new_report.py" -t "Code review — <scope> — <yyyy-mm-dd>" -c <fragment> -o docs/review/<yyyy-mm-dd>-<scope>.html -f --date <yyyy-mm-dd>
+```
+
+It prints `wrote <path>`. On a `warning:` line, fix the fragment and rebuild; never edit the output or read the template. A refusal, or no Python 3, leaves the Markdown as the only report: say why in one line.
 
 ## Budgets and reference files
 

@@ -34,7 +34,7 @@ ClaudeSkills/
 ### Prerequisites
 
 - [Claude Code](https://claude.com/claude-code) and `git`.
-- Python 3 for `roadmap.py` and the `html-report` build script (`python3`, or `py -3` on Windows). Optional for the workflow, which then edits the roadmap by hand; required by `html-report`.
+- Python 3 for `roadmap.py` and the `html-report` build script (`python3`, or `py -3` on Windows). Optional for the workflow, which then edits the roadmap by hand; required by `html-report`, and so by `/review`'s HTML report (without it, `/review` writes the Markdown report only).
 - The .NET SDK for the .NET skills and `/review`.
 
 ### Install for every project (user scope)
@@ -71,7 +71,7 @@ Copy the folders you need into the project's `.claude/commands/` and `.claude/sk
 
 ### What to install
 
-Install the commands and skills **from the same checkout**. Each command loads skills by name — `/interview` and `/build` need `dev-workflow`, `/vibe` and `/bulk` also need `vibe-workflow`, `/review` needs `review-standards` — and they evolve together. The stack and tooling skills are optional; without them the commands still run, just without those conventions.
+Install the commands and skills **from the same checkout**. Each command loads skills by name — `/interview` and `/build` need `dev-workflow`, `/vibe` and `/bulk` also need `vibe-workflow`, `/review` needs `review-standards` and `html-report` — and they evolve together. The other stack and tooling skills are optional; without them the commands still run, just without those conventions.
 
 ### Update and uninstall
 
@@ -158,7 +158,7 @@ They need a permission mode that does not prompt for file writes and `git commit
 
 ### `/review` — .NET code review
 
-Builds and tests the solution as a baseline (`dotnet test --solution` when `global.json` selects the Microsoft Testing Platform runner, the positional form in VSTest mode), then reviews the whole solution, a path, or the code of the work items you name — their commits in `HEAD`'s history. It checks SOLID, XAML, logging, exceptions, async, MVVM, tests, security, style and performance against the house skills, and writes `docs/review/<yyyy-mm-dd>-<scope>.md` plus an HTML rendering. Findings carry a severity (Critical → Low), their locations and a recommended fix. It is read-only otherwise, and its report is the input `/interview` and `/vibe` turn into a `CODE-REVIEW` item. Add "use sub-agents" to the argument for a parallel review.
+Builds and tests the solution as a baseline (`dotnet test --solution` when `global.json` selects the Microsoft Testing Platform runner, the positional form in VSTest mode), then reviews the whole solution, a path, or the code of the work items you name — their commits in `HEAD`'s history. It checks SOLID, XAML, logging, exceptions, async, MVVM, tests, security, style and performance against the house skills, and writes `docs/review/<yyyy-mm-dd>-<scope>.md` plus an HTML rendering built with `html-report`. Findings carry a severity (Critical → Low), their locations and a recommended fix. It is read-only otherwise, and its report is the input `/interview` and `/vibe` turn into a `CODE-REVIEW` item. Add "use sub-agents" to the argument for a parallel review.
 
 ## Skills
 
