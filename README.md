@@ -26,7 +26,8 @@ ClaudeSkills/
 │   └── …                        one folder per skill, SKILL.md plus optional
 │                                reference/, templates/, scripts/
 ├── scripts/                     copy-install / update scripts
-│   └── linux/update.sh
+│   ├── linux/update.sh
+│   └── windows/update.ps1       (+ update.bat, which runs it)
 └── docs/                        this repository's own roadmap, plans and
                                  completion records (the workflow, applied to itself)
 ```
@@ -65,7 +66,11 @@ Get-ChildItem "$repo\skills" -Directory | ForEach-Object {
 
 Both scripts **replace** an existing command or skill of the same name.
 
-Prefer copies to links? Run the update script from the clone instead: `"$REPO"/scripts/linux/update.sh`. It copies every command and skill into `~/.claude/` (or `$CLAUDE_CONFIG_DIR`). An item of the same name is replaced whole, so files a skill no longer ships go too. Every other command or skill there is kept, and a link into the clone is left as is. Add `--dry-run` to see what it would do first: it works even when `~/.claude/skills` or `~/.claude/commands` does not exist yet.
+Prefer copies to links? Run the update script from the clone instead:
+- Linux: `"$REPO"/scripts/linux/update.sh`.
+- Windows: `scripts\windows\update.bat`. Double-click it or run it from a terminal; it runs `update.ps1` with the execution policy bypassed for that run only.
+
+It copies every command and skill into `~/.claude/` (`%USERPROFILE%\.claude\` on Windows), or into `$CLAUDE_CONFIG_DIR` when that is set. An item of the same name is replaced whole, so files a skill no longer ships go too. Every other command or skill there is kept, and a link into the clone is left as is. Add `--dry-run` (`-DryRun` on Windows) to see what it would do first: it works even when the `skills` or `commands` folder does not exist yet.
 
 Start a new Claude Code session afterwards: the commands appear in the `/` menu, and skills load when a task matches their description.
 
@@ -86,7 +91,7 @@ find ~/.claude/commands ~/.claude/skills -maxdepth 1 -type l -lname "$HOME/src/C
                                                      # uninstall: removes only the links into the clone
 ```
 
-A copy install updates by re-running `scripts/linux/update.sh` after the pull.
+A copy install updates by re-running `scripts/linux/update.sh` (Windows: `scripts\windows\update.bat`) after the pull.
 
 ## The dev workflow
 
