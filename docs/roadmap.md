@@ -10,3 +10,6 @@
 | FEATURE-9E0C | Review report on html-report template | DONE   | docs/plan/FEATURE-9E0C.md |
 | - PHASE01    | Review content fragment               | DONE   | (in FEATURE-9E0C.md)      |
 | - PHASE02    | Wire /review to html-report           | DONE   | (in FEATURE-9E0C.md)      |
+| FEATURE-C001 | Skill and command update scripts      | TODO   | docs/plan/FEATURE-C001.md |
+| - PHASE01    | Linux update.sh                       | TODO   | (in FEATURE-C001.md)      |
+| - PHASE02    | Windows update.ps1 and update.bat     | TODO   | (in FEATURE-C001.md)      |
