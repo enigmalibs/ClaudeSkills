@@ -52,7 +52,7 @@ See *Decisions taken autonomously* below. In short: `templates/report.html` is a
 
 ## PHASE02 — Component catalogue
 
-**Status:** TODO
+**Status:** DONE
 
 ### Steps
 
