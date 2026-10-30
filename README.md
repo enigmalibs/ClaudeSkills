@@ -5,7 +5,7 @@ House slash commands and skills for [Claude Code](https://claude.com/claude-code
 ## What's inside
 
 - **5 slash commands** — `/interview`, `/build`, `/vibe`, `/bulk`, `/review` — that you run by typing them.
-- **16 skills** — instructions Claude loads on demand: 3 workflow skills the commands depend on, 11 .NET and desktop convention skills, and 2 tooling skills.
+- **17 skills** — instructions Claude loads on demand: 3 workflow skills the commands depend on, 11 .NET and desktop convention skills, and 3 tooling skills.
 - **`roadmap.py`** — a standard-library Python script that keeps the roadmap table and statuses consistent.
 
 ```
@@ -34,7 +34,7 @@ ClaudeSkills/
 ### Prerequisites
 
 - [Claude Code](https://claude.com/claude-code) and `git`.
-- Python 3 for `roadmap.py` (`python3`, or `py -3` on Windows). Optional: without it, the workflow edits the roadmap by hand.
+- Python 3 for `roadmap.py` and the `html-report` build script (`python3`, or `py -3` on Windows). Optional for the workflow, which then edits the roadmap by hand; required by `html-report`.
 - The .NET SDK for the .NET skills and `/review`.
 
 ### Install for every project (user scope)
@@ -194,6 +194,7 @@ Skills load automatically when a task matches their description, or when a comma
 |--------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
 | [`dotnet-release`](skills/dotnet-release/SKILL.md)     | A NuGet release as a work item: version bump, release docs from templates, pack/tag/push runbook, MSI profile |
 | [`git-repo-hygiene`](skills/git-repo-hygiene/SKILL.md) | `.gitignore`, `.gitattributes` and a minimal `.editorconfig` for .NET repos; fixing CRLF/LF churn             |
+| [`html-report`](skills/html-report/SKILL.md)           | Self-contained HTML reports from a bundled template: build script, component catalogue, themes, print and PDF |
 
 ## Maintaining this repository
 
@@ -201,8 +202,9 @@ Skills load automatically when a task matches their description, or when a comma
 - **A skill** is `skills/<name>/SKILL.md`: frontmatter with `name` (the folder name), `description` — the text Claude matches tasks against, so keep it precise — and `metadata.version`, then the instructions. Supporting files go in `reference/`, `templates/` or `scripts/` beside it.
 - **Versions** are semantic, in the frontmatter (`metadata:` → `version: "10.2.0"`) — never in the body or the command's output. Bump with every change: patch for a fix or rewording, minor for new or changed behaviour, major for a breaking one. `/review` reads them from disk to name its rulebook in the report.
 - **Keep commands and skills in step**: a command refers to skills, sections and scripts by name, so rename them together.
-- **Test `roadmap.py`** after changing it:
+- **Test the scripts** after changing them — `roadmap.py`, and `html-report`'s `new_report.py`:
 
   ```bash
   python3 -B -m unittest discover -s skills/dev-workflow/scripts      # Windows: py -3 -B -m unittest …
+  python3 -B -m unittest discover -s skills/html-report/scripts
   ```

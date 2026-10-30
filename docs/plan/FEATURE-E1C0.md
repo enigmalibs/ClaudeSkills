@@ -1,4 +1,4 @@
-**Status:** IN PROGRESS
+**Status:** DONE
 **Type:** FEATURE (multi-phase)
 **Branches:** feature/feature-e1c0-phase01-template-script · feature/feature-e1c0-phase02-component-catalogue · feature/feature-e1c0-phase03-skill-readme
 **Run:** feature/2026-10-30-html-report-skill
@@ -79,7 +79,7 @@ See *Decisions taken autonomously* below. In short: `templates/report.html` is a
 
 ## PHASE03 — SKILL.md and README entry
 
-**Status:** TODO
+**Status:** DONE
 
 ### Steps
 
