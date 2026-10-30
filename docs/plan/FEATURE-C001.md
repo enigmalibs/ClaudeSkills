@@ -1,4 +1,4 @@
-**Status:** IN PROGRESS
+**Status:** DONE
 **Type:** FEATURE (multi-phase)
 **Branches:** feature/feature-c001-phase01-linux-update · feature/feature-c001-phase02-windows-update
 **Run:** feature/2026-10-30-update-scripts
@@ -61,7 +61,7 @@ Run against throwaway targets (`CLAUDE_CONFIG_DIR` in the scratchpad), never the
 
 ## PHASE02 — Windows update.ps1 and update.bat
 
-**Status:** TODO
+**Status:** DONE
 
 ### Steps
 
