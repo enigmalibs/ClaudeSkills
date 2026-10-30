@@ -1,4 +1,4 @@
-**Status:** TODO
+**Status:** IN PROGRESS
 **Type:** FEATURE (multi-phase)
 **Branches:** feature/feature-e1c0-phase01-template-script · feature/feature-e1c0-phase02-component-catalogue · feature/feature-e1c0-phase03-skill-readme
 **Run:** feature/2026-10-30-html-report-skill
@@ -25,7 +25,7 @@ See *Decisions taken autonomously* below. In short: `templates/report.html` is a
 
 ## PHASE01 — Template and build script
 
-**Status:** TODO
+**Status:** DONE
 
 ### Steps
 
@@ -45,7 +45,7 @@ See *Decisions taken autonomously* below. In short: `templates/report.html` is a
 ### Acceptance criteria
 
 - `templates/report.html` hashes to the SHA-256 above.
-- `py -3 -B -m unittest discover -s skills/html-report/scripts` passes; the `roadmap.py` suite still passes (46 tests).
+- `py -3 -B -m unittest discover -s skills/html-report/scripts` passes; the `roadmap.py` suite still passes (51 tests).
 - A build of a small sample fragment produces a file that differs from the template only in the title (3 places), the footer date, `lang` and the content region, and leaves the template unchanged.
 - Rendered in headless Edge, the sample shows its title and content, and `--dump-dom` shows the generated table of contents.
 - No `__pycache__` or build output is committed.
