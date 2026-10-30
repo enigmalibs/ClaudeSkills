@@ -1,11 +1,11 @@
 ---
 name: xunit-v3
 description: Use when setting up or writing .NET tests — creating a test project, choosing test packages, running dotnet test, or writing xUnit test classes, theories, fixtures, and async lifecycle code.
+metadata:
+  version: "6.0.2"
 ---
 
 # xUnit v3 — house testing conventions
-
-**Version: xunit-v3 v6.**
 
 House rule: new test projects use **xUnit v3 at version 4.x** (`xunit.v3` package) — not `xunit` 2.x, not MSTest/NUnit (deviating needs a documented compatibility reason). Test projects live under `tests/`, are named **`<ProjectUnderTest>.UnitTests`**, and mirror the TFMs of the project under test (see *Target frameworks* below).
 
@@ -87,7 +87,7 @@ Run with `dotnet test` using MTP filters — not VSTest's `--filter FullyQualifi
 
 A filter that matches nothing is not silent: the run ends "Zero tests ran" with a non-success exit code.
 
-**Passing a solution:** `dotnet test --solution <Solution>.slnx` is the explicit, always-correct form — use it in scripts, docs, and CI. On SDK 10.0.300 the bare positional `dotnet test <Solution>.slnx` is *also* accepted (it was rejected on earlier 10.0 SDKs), so treat `--solution` as the portable form rather than the only working one. Plain `dotnet test` inside a project directory still works.
+**Passing a solution:** `dotnet test --solution <Solution>.slnx` is the **MTP-mode** form — the switch exists only when `global.json` sets the MTP runner (above), as every house repo does; use it there in scripts, docs, and CI. In MTP mode on SDK 10.0.300 the bare positional `dotnet test <Solution>.slnx` is *also* accepted (it was rejected on earlier 10.0 SDKs), so `--solution` is the portable MTP form rather than the only working one. In VSTest mode (no `test.runner` entry) `--solution` fails with `MSB1001: Unknown switch` — the positional form is the one that works there. `--solution` takes a `.sln`/`.slnx` only (a `.csproj` → "invalid extension"): to test one project, use `--project <Tests>.csproj` in MTP mode, `dotnet test <Tests>.csproj` in VSTest mode. Plain `dotnet test` inside a project directory still works.
 
 ## Test parallelization
 
@@ -167,7 +167,7 @@ Not v2 habits — house-convention slips that a fresh v3 project still walks int
 | `LangVersion` / `Nullable` / `ImplicitUsings` / `TreatWarningsAsErrors` in the test csproj | They come from the solution-root `Directory.Build.props` |
 | Keeping `coverlet.collector` in a 4.0 project | It collects nothing under MTP v2 — it is a VSTest data collector; use `Microsoft.Testing.Extensions.CodeCoverage` |
 | A CI artifact glob still matching `.junit` | `.junit.xml` since 4.0 — the old glob matches nothing and the build stays green |
-| Passing a solution positionally (`dotnet test <Solution>.slnx`) in scripts or CI | `dotnet test --solution <Solution>.slnx` — the positional form was rejected before SDK 10.0.300 (*Running tests*) |
+| `dotnet test --solution` outside MTP mode, or given a `.csproj` | `--solution` exists only when `global.json` sets the MTP runner, and takes a solution file: in VSTest mode pass the solution positionally; a project goes to `--project` (MTP) or positionally (VSTest). In MTP mode keep `--solution` in scripts and CI — the positional form was rejected before SDK 10.0.300 (*Running tests*) |
 
 ## Cross-references
 

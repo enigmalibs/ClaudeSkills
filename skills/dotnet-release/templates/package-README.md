@@ -12,14 +12,16 @@
   nuget.org landing page. The per-category guides under docs/guides/ carry the detail; the README
   states what the library is, the one idea a consumer must hold, and how to start.
 
-  Link rule (correctness, not style): the packed README is rendered on nuget.org, where relative
-  links into docs/ are dead. Link only to files that are packed or repo-root (LICENSE.md,
-  RELEASENOTES.md), point at the guides in prose, and never use absolute GitHub URLs.
+  Link rule (correctness, not style): the packed README is rendered on nuget.org, which resolves
+  no relative link (each renders as an empty href). No relative links at all: name repository
+  files (RELEASENOTES.md, docs/guides/) in plain text, link only to stable non-repository URLs
+  (nuget.org, licenses.nuget.org), and never use absolute GitHub URLs. nuget.org shows
+  PackageReleaseNotes in its own Release Notes tab.
 -->
 # {{PACKAGE_ID}}
 
 [![NuGet](https://img.shields.io/nuget/v/{{PACKAGE_ID}}.svg)](https://www.nuget.org/packages/{{PACKAGE_ID}})
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE.md)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://licenses.nuget.org/MIT)
 
 <!-- Intro: one paragraph. What the library is, and the single idea a consumer needs to hold —
      the idiom every part of the surface follows. No bullet list here. -->
@@ -28,7 +30,7 @@ the idea a consumer has to hold to use anything in it. Name the primary dependen
 foundation if there is one, and say whether it leaks onto the public surface.
 
 > **What's new in {{VERSION_MINOR}}** — one-line highlight of this release. See
-> [RELEASENOTES.md](RELEASENOTES.md).
+> RELEASENOTES.md in the repository.
 
 ## Features
 
@@ -77,4 +79,4 @@ repository, indexed by `docs/guides/README.md`. They cover <the categories, list
 
 ## License
 
-{{PACKAGE_ID}} is released under the [MIT License](LICENSE.md).
+{{PACKAGE_ID}} is released under the [MIT License](https://licenses.nuget.org/MIT).

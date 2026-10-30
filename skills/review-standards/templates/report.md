@@ -1,13 +1,13 @@
 # Code review — <scope> — <yyyy-mm-dd>
 
-Written by `/review` v1 with `review-standards` v1. Read-only: nothing in the repository was changed.
+Written by `/review` with `review-standards` <X.Y.Z>. Read-only: nothing in the repository was changed.
 
 ## Scope & method
 
 - **Solution:** `<path/to/Solution.slnx>` (<N> projects) at `<branch> @ <short sha>`.
 - **Scope:** <full solution | work items `<ID>`, `<ID>` — commits `<sha>`, `<sha>` (<N> files) | path `<path>`>.
 - **Dimensions:** <all ten | `SOLID`, `XAML`, … (restricted by the argument text)>.
-- **Rulebook:** <dotnet-di-design, dotnet-async, communitytoolkit-mvvm, avalonia v2, enigma-avalonia-desktop v3, xunit-v3 v6, csharp-extension-methods> + `review-standards` v1 references <solid, xaml, …>.
+- **Rulebook:** <dotnet-di-design 1.0.0, dotnet-async 1.0.0, communitytoolkit-mvvm 1.0.0, avalonia 2.0.0, enigma-avalonia-desktop 3.0.0, xunit-v3 6.0.0, csharp-extension-methods 1.0.0> + `review-standards` <X.Y.Z> references <solid, xaml, …>.
 - **Mode:** <inline | sub-agents per dimension, merged and de-duplicated>.
 
 ## Baseline
@@ -15,7 +15,7 @@ Written by `/review` v1 with `review-standards` v1. Read-only: nothing in the re
 | Step | Result |
 |---|---|
 | `dotnet build <Solution.slnx>` | <0 errors, 12 warnings — CA2254 ×7, AVLN2100 ×3, IDE0005 ×2 \| not completed: <reason>> |
-| `dotnet test --solution <Solution.slnx>` | <passed 184 · failed 0 · skipped 2 \| no tests \| not completed: <reason>> |
+| <`dotnet test --solution <Solution.slnx>` (MTP mode) \| `dotnet test <Solution.slnx>` (VSTest mode) — the command that ran> | <passed 184 · failed 0 · skipped 2 \| no tests \| not completed: <reason>> |
 
 <One line on what the baseline implies, e.g. "The three AVLN2100 warnings are XAML-01 below.">
 

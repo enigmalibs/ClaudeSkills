@@ -2,6 +2,8 @@
 description: Autonomous build of already-planned roadmap items — takes the TODO rows /interview wrote (all of them, or the base IDs you pass), claims them on a <feature|bugfix|review>/<date>-<slug> run branch, then builds every dev (branch, implement, DoD, commit, merge, quarantine-and-continue) without asking anything. No argument on a run branch = resume that run. Never touches the branch you started from; never pushes; never adds an attribution trailer to its commits.
 argument-hint: "[<ID> [<ID>…]] | (nothing = every TODO row, or resume the current run)"
 disable-model-invocation: true
+metadata:
+  version: "5.1.1"
 ---
 
 # /bulk — build already-planned items, unattended
@@ -13,11 +15,6 @@ disable-model-invocation: true
 - **No `Co-Authored-By` or other attribution line in any commit**, even if the session asks for one.
 
 The plans are the contract — `/interview` validated them with me; a stale one is adapted and the deviation recorded, never questioned. You never re-run the interview: claim the items, run the skill's build loop, and report once, at the end. Typical flow: `/interview <spec>` → I commit its plan → `/bulk` → I review and merge the run branch.
-
-## Phase 0: Announce the version
-**Before anything else**, your very first output must be exactly this line, as plain text, on its own line and with nothing before it:
-
-Using bulk v5 by Josué Clément
 
 ## Phase 1: Load the standards
 Load the **`dev-workflow`** skill and read its `reference/build-flow.md`, then load the **`vibe-workflow`** skill — the override layer, which wins wherever they disagree; here `<command>` = `bulk`. Load the stack/convention skills the codebase calls for (as `/interview` Phase 1 step 5b).

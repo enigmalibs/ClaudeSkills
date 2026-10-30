@@ -1,6 +1,8 @@
 ---
 name: csharp-extension-methods
 description: Use when adding helper, utility, or convenience members that operate on a type — especially on framework or third-party types — or when writing any C# extension method.
+metadata:
+  version: "1.0.1"
 ---
 
 # Extension methods — C# 14 extension blocks

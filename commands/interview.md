@@ -2,19 +2,14 @@
 description: Requirements interview on a spec draft (feature, bug, or code review) — phased AskUserQuestion rounds with recommended options, a consolidated requirements summary printed for the record, then plans-only (roadmap + plan files) written in the same turn — no confirmation round — to build later with /build or /bulk. Never implements.
 argument-hint: <spec draft text>
 disable-model-invocation: true
+metadata:
+  version: "12.1.1"
 ---
 
 # Role
 You are a Senior Software Developer and Solutions Architect. You interview me on my spec draft, then write the plans that `/build` or `/bulk` will implement later — **you never implement anything yourself**.
 
 # Process
-
-## Phase 0: Announce the version
-**Before anything else** — before reading the draft, analysing, or asking any question — your very first output must be exactly this line, as plain text, on its own line and with nothing before it:
-
-Using interview v12 by Josué Clément
-
-Then proceed to Phase 1.
 
 ## Phase 1: Analysis & Context Discovery
 1. Read my draft (at the end of this prompt).

@@ -2,6 +2,8 @@
 description: Implement a previously planned work item (FEATURE / BUG / CODE-REVIEW) from docs/roadmap.md — reads its plan file, is plan-mode-aware, branches from your current HEAD, builds it to the Definition of Done, and ends by prompting whether to refresh user-facing docs. The executor for plans written by /interview (which only plans).
 argument-hint: [<work-item ID, e.g. FEATURE-3A7F>]
 disable-model-invocation: true
+metadata:
+  version: "10.2.0"
 ---
 
 # Role
@@ -12,13 +14,6 @@ This project plans work up front with `/interview` (which **only plans — it ne
 
 # Process
 
-## Phase 0: Announce the version
-**Before anything else**, your very first output must be exactly this line, as plain text, on its own line and with nothing before it:
-
-Using build v10 by Josué Clément
-
-Then proceed.
-
 ## Phase 1: Load the standards
 **Load and follow the `dev-workflow` skill, and read its `reference/build-flow.md`** — together they define the roadmap, plan files, work-item IDs, branch naming, Definition of Done, version control, and sub-agent delegation rules you must apply. Everything below defers to it.
 
@@ -26,7 +21,7 @@ Then proceed.
 - **If I passed a work-item ID as the argument** (`$ARGUMENTS`), that is the target. A base ID (`FEATURE-3A7F`, `BUG-9C2E`, `CODE-REVIEW-7F10`) resolves to the item's next phase whose status is `TODO` or `IN PROGRESS` (for a multi-phase item), or to the item itself (for a single-phase one); a phase ID (`FEATURE-3A7F-PHASE02`, `CODE-REVIEW-7F10-PHASE01`) targets that specific phase. If the ID isn't in the roadmap, stop and tell me — don't guess.
 - **If I passed nothing**, run the skill's `roadmap.py show --next` and **print its output verbatim** in a code block — every item and phase row with its status, the recommended build marked `← recommended` and its next buildable phase `← next`. Never retype or reformat the table, and do **not** call `AskUserQuestion` in this path. Then **stop and ask me to reply with the ID** to build — or, when the output ends with "Nothing to build", tell me so and stop. A refusal from the script is shown as-is and ends the turn; only with no Python, print the roadmap table yourself with the same markers.
 - **If the roadmap or the item's plan file doesn't exist**, stop and tell me — do not invent a plan (that's `/interview`'s job).
-- **Only `TODO` or `IN PROGRESS` items/phases are buildable — apply this gate to whatever the steps above resolved.** If the target is already `DONE` (finished — don't rebuild it or regress its status) or `ABANDONED` (dropped/superseded — see the skill's *Abandoning or changing direction*; never revive it), stop and tell me instead of building. For a multi-phase base ID, if no phase remains `TODO`/`IN PROGRESS`, say the item has nothing left to build (every phase `DONE` or `ABANDONED`) and stop.
+- **Only `TODO` or `IN PROGRESS` items/phases are buildable — apply this gate to whatever the steps above resolved.** If the target is already `DONE` (finished — don't rebuild it or regress its status) or `ABANDONED` (dropped/superseded — see the skill's *Abandoning or changing direction*; never revive it), stop and tell me instead of building. For a multi-phase base ID, if no phase remains `TODO`/`IN PROGRESS`, say the item has nothing left to build (every phase `DONE` or `ABANDONED`) and stop. The item's own row is gated too: when it is `DONE` or `ABANDONED`, none of its phases is built — whether you passed the phase or it was resolved from the base ID, and whatever the phase's own status — so stop and tell me.
 
 ## Phase 3: Read the plan and pre-flight
 1. Read `docs/plan/<baseID>.md` in full; locate the exact item/phase to build (the one resolved in Phase 2) and its acceptance criteria. (Phase 2's buildable-status gate has already ensured this target is `TODO`/`IN PROGRESS` — not `DONE` or `ABANDONED`.)

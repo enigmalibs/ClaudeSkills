@@ -1,11 +1,11 @@
 ---
 name: enigma-avalonia-desktop
 description: Use when building or extending an Avalonia desktop app with the Enigma.Avalonia.Desktop control library (NuGet package Enigma.Avalonia.Desktop) — including adopting it into an app that does not reference it yet, or restyling standard Avalonia controls with its theme — spanning NavigationView, Ribbon, DockingHost, the typed Editors, ContentDialog, Overlay, InfoBar, SettingsCard/SettingsCardExpander, the CollectionView data subsystem, the six DI services, host/storage-provider wiring, and the Enigma* Fluent theme keys.
+metadata:
+  version: "3.0.3"
 ---
 
 # Enigma.Avalonia.Desktop
-
-**Version: enigma-avalonia-desktop v3.**
 
 Control library for **Avalonia 12** desktop apps (Fluent-based, Dark + Light), published on nuget.org
 as `Enigma.Avalonia.Desktop` (1.0.0, 1.1.0, **1.2.0**) — repo `enigmalibs/Enigma.Avalonia`. Targets
@@ -66,7 +66,9 @@ owns both. This package needs `Avalonia` / `Avalonia.Themes.Fluent` ≥ 12.1.1 a
    (`ContentDialog`, `Overlay`, `InfoBar`), each `x:Name`d so they overlay everything.
 4. **Hand the hosts over once** in `App.OnFrameworkInitializationCompleted`, before the window is
    shown: `RegisterHost(...)` ×3 plus `SetStorageProvider(mainWindow.StorageProvider)` ×2.
-5. **Inject services** into ViewModels by constructor and `await service.ShowAsync(...)`.
+5. **Inject services** into ViewModels by constructor and call `service.ShowAsync(...)` — `await` a
+   dialog (for its result) or an overlay, but not an InfoBar from a command: its task completes only
+   when the bar closes (`reference/dialogs-overlay-infobar.md`).
 
 Set the window's own `Background="{DynamicResource EnigmaBackgroundBrush}"` — the theme paints
 controls, not the window.
@@ -115,7 +117,9 @@ ribbon and editor families each live in their own CLR namespace. A single
   *The view box is dropped*. The real fix — `IconData` accepting `object` content, or a geometry boxed to
   256 × 256 — is a change to `Enigma.Avalonia.Desktop`, not to this skill.
 - **MVVM**: `ObservableObject` / `ObservableValidator`, `RelayCommand` / `AsyncRelayCommand`, and
-  semi-auto properties — `public T X { get; set => SetProperty(ref field, value); }`.
+  semi-auto properties — `public T X { get; set => SetProperty(ref field, value); }`, with an initializer
+  (`… } = string.Empty;`) or a `T?` type for a reference type, or CS9264 fails the build
+  (**communitytoolkit-mvvm**).
 
 ## Gotchas that cost real time
 

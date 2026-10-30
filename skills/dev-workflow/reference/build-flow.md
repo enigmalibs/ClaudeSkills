@@ -2,7 +2,7 @@
 
 Read this before building a dev (`/build`, `/vibe`, `/bulk`). The core `SKILL.md` still applies — IDs, the roadmap and `scripts/roadmap.py`, plan files, completion docs, branch names, commit-message formats.
 
-Hard rules: **branch from the current `HEAD`, never from the default branch** · **never mark a dev `DONE` with a failing build or failing tests** · on a dirty tree, an existing branch name (a quarantined dev's excepted) or no repository, stop and ask.
+Hard rules: **branch from the current `HEAD`, never from the default branch** · **never mark a dev `DONE` with a failing build or a failing test the baseline did not have** · on a dirty tree, an existing branch name (a quarantined dev's excepted) or no repository, stop and ask.
 
 ## Building a dev
 
@@ -14,13 +14,15 @@ Hard rules: **branch from the current `HEAD`, never from the default branch** ·
 
 A dev is done only when all five hold:
 
-1. The full build succeeds with zero warnings.
-2. The entire test suite passes, including the new tests the plan's acceptance criteria call for.
+1. The full build succeeds with no warning the baseline did not have.
+2. The entire test suite passes, bar the tests the baseline already failed, including the new tests the plan's acceptance criteria call for.
 3. Every acceptance criterion in the plan file is met.
 4. The roadmap and plan file statuses are updated (`roadmap.py set-status`).
 5. The dev's completion doc `docs/done/<ID>.md` is written (core *Completion docs*).
 
-Only then print the progress table (multi-phase) and the suggested commit message. **Never mark an item `DONE` — or present it as finished — with a failing build or failing tests**; report the failure instead.
+Only then print the progress table (multi-phase) and the suggested commit message. **Never mark an item `DONE` — or present it as finished — with a failing build or a failing test the baseline did not have**; report the failure instead.
+
+**Baseline.** Before the dev's first change — before you create its branch, or switch to it — run the full build and the whole suite on the `HEAD` you start from, and record the build warnings by ID and file, with their count, and the failing tests by name. Criteria 1–2 count only what is new against it: a warning beyond the baseline's count for its ID and file, a failing test it does not list. What it lists is pre-existing — a follow-up, left alone unless the plan targets it; never fix unrelated code to clear it. A clean baseline keeps the strict rule: zero warnings, every test passing. The done doc records the baseline under *Build/test evidence* and lists the pre-existing warnings and failures under *Deviations & follow-ups*.
 
 Work with no build step or test suite (documentation, prompt or config changes) meets criteria 1 and 2 by the applicable equivalent: the artifact is well-formed and its acceptance criteria are verified by inspection or a dry run. Say explicitly that there was nothing to build or test. Criteria 3–5 still apply.
 

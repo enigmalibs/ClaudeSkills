@@ -1,11 +1,11 @@
 ---
 name: dotnet-release
 description: Use when releasing a new version of a .NET library/app to NuGet — bumping the version, authoring the release documentation from the bundled templates (packed README + badges, release notes, per-category guides and their index, SECURITY.md), PackageReleaseNotes, refreshing NuGet packages, printing the pack/tag/push runbook, and generating a WixSharp MSI profile when releasing an app.
+metadata:
+  version: "7.2.0"
 ---
 
 # .NET version release
-
-**Version: dotnet-release v7.**
 
 Drive a new NuGet library-version release end-to-end: make the in-repo edits (version, release notes, README, package metadata, selective dependency bumps), then **print** the out-of-repo runbook for the user to run. A release is a **`FEATURE-HHHH` work item** — one phase for a routine bump, four for a first release (see *The shape of a release work item*). **dev-workflow** owns its mechanics (see *Cross-references*); this skill does not restate them.
 
@@ -93,9 +93,10 @@ What must be *true* of the released documentation. The bundled templates carry t
 
 The repository-root README is **packed into the nupkg** (`PackageReadmeFile`) and is the package's nuget.org landing page. [`templates/package-README.md`](templates/package-README.md) carries the section order: title → badges → one-paragraph intro → what's-new callout → *Features* → *Installation* → *Quick start* → *Documentation* → *License*. Keep it **summary-length** — the guides carry the detail.
 
-**Link rule — a correctness constraint, not a style preference.** The README is packed, so it renders on nuget.org where the repository tree isn't present and a relative link into `docs/` is simply dead:
+**Link rule — a correctness constraint, not a style preference.** The README is packed, so it renders on nuget.org, which resolves **no relative link** — not into `docs/`, not to a repo-root file such as `LICENSE.md` or `RELEASENOTES.md`, packed or not: each one renders as an empty `href`.
 
-- **Link only to files that are packed or repo-root** — `LICENSE.md`, `RELEASENOTES.md`.
+- **No relative links at all** — name repository files in plain text (`RELEASENOTES.md`, `LICENSE.md`). `RELEASENOTES.md` is not even packed, and nuget.org shows `PackageReleaseNotes` in its own *Release Notes* tab.
+- **Absolute links only to stable, non-repository URLs** — the nuget.org package page, and `https://licenses.nuget.org/MIT` for the license.
 - **Point at the guides in prose** — name where they live (`docs/guides/`, indexed by `docs/guides/README.md`) and what they cover. **No clickable per-guide links.**
 - **No absolute GitHub URLs** — they hard-code org/repo/branch and rot on a rename.
 
@@ -104,7 +105,7 @@ Note the asymmetry: `docs/guides/README.md` is **not** packed, so relative links
 **What's-new callout** — a single blockquote after the intro:
 
 ```markdown
-> **What's new in X.Y** — <one-line highlight>. See [RELEASENOTES.md](RELEASENOTES.md).
+> **What's new in X.Y** — <one-line highlight>. See RELEASENOTES.md in the repository.
 ```
 
 **Supported target frameworks** — the `Targets **<TFMs>**; built on <primary dependency + version>.` line under *Installation*, updated only when the TFM set moved (see *In-repo edits*).
@@ -151,9 +152,9 @@ The gate exists because **there is no compile harness for doc snippets** — not
 Print the following for the user to run (these are the `docs/RELEASE.md` steps; the bundled template is the fuller checklist). State explicitly: **the skill prints these; the user runs them.**
 
 ```bash
-# 1. Pre-flight (Release configuration)
+# 1. Pre-flight (Release configuration) — the test form per *Detect the specifics*
 dotnet build <solution> -c Release
-dotnet test --solution <solution> -c Release
+dotnet test --solution <solution> -c Release    # VSTest mode: dotnet test <solution> -c Release
 
 # 2. Merge the release branch into the default (published) branch, then locally:
 git switch <default-branch> && git pull
@@ -176,7 +177,8 @@ Then **post-publish verification**: the package page shows `X.Y.Z`; the README N
 Detect the specifics rather than assuming them:
 
 - **Tag format** — `git tag` to see the repo's convention (bare `X.Y.Z` vs. `vX.Y.Z`) and match it; default to **bare `X.Y.Z`** for a repo with no tags.
-- **Solution vs. single project** — use the solution file (`.slnx` / `.sln`) for the build/test pre-flight; if the repo has no solution (one packable project), use the library `.csproj` instead.
+- **Test form** — `dotnet test --solution <solution>` when the root `global.json` sets `"test": { "runner": "Microsoft.Testing.Platform" }` (the house default, see **xunit-v3**); otherwise (VSTest mode, where `--solution` fails with `MSB1001`) `dotnet test <solution>`. Print only the form that applies.
+- **Solution vs. single project** — use the solution file (`.slnx` / `.sln`) for the build/test pre-flight; if the repo has no solution (one packable project), build the library `.csproj` and test the test project — `dotnet test --project <tests csproj>` in MTP mode, `dotnet test <tests csproj>` in VSTest mode — never the library `.csproj` (it holds no tests, and `--solution` rejects a project file). No test project: drop the test line and say so.
 - **Default branch** — the published branch you merge into and pack from; the house repos use `main` or `master`. Confirm with `git remote show origin` (or the local default) if unsure.
 
 The merge/tag/push steps assume an initialized git repo with a remote — skip them for a repo that isn't set up to publish yet.
@@ -221,11 +223,11 @@ Every doc template, `RELEASE.md` included, follows one handling rule: **create o
 | Bumping one package of a version-coupled set individually | Bump the set (dotnet-solution-config) together, or hold the whole set back. |
 | Forgetting `<PackageReleaseNotes>` in the library csproj | Add it, mirroring the top of `RELEASENOTES.md`. |
 | Tagging with the wrong prefix (bare vs. `v`) | Detect existing tags and match; default bare `X.Y.Z`. |
-| Skipping the Release-config build/test pre-flight | Always `dotnet build <solution> -c Release` and `dotnet test --solution <solution> -c Release` before tagging. |
+| Skipping the Release-config build/test pre-flight | Always `dotnet build <solution> -c Release` and `dotnet test` with `-c Release` before tagging — `--solution <solution>` in MTP mode, positional `<solution>` in VSTest mode (*Detect the specifics*). |
 | Not logging `old → new` dependency transitions | Record every version change (and held-back set) in `RELEASENOTES.md`. |
 | TFM set changed but the README "supported target frameworks" line / `RELEASENOTES.md` *Compatibility* note not updated | Log the `old → new` TFM set and keep the audit trail in sync; flag a dropped TFM as a breaking change. |
 | Committing or echoing the NuGet API key | The key is a secret — it never appears in the repo or output. |
-| A relative `docs/…` link in the packed README | Dead on nuget.org — the repo tree isn't there. Link only packed/repo-root files; point at the guides in prose. |
+| A relative link in the packed README — `docs/…`, `LICENSE.md`, `RELEASENOTES.md` | Dead on nuget.org: every relative link renders as an empty `href`. Name files in plain text, link the license to `https://licenses.nuget.org/MIT`, point at the guides in prose. |
 | Adding a `CHANGELOG.md` alongside `RELEASENOTES.md` | One release-notes source only; two chronologies diverge. `RELEASENOTES.md` wins. |
 | Shipping a guide whose snippets were never verified against `src/` | Run the snippet-verification gate and record the coverage table — there is no compile harness to catch drift. |
 | Packing but never inspecting the artifact | Pack-verify into a throwaway dir and check version, embedded non-empty README, LICENSE, the nuspec fields and dependency floors — then delete it. |

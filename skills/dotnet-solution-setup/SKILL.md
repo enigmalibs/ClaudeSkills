@@ -1,11 +1,11 @@
 ---
 name: dotnet-solution-setup
 description: Use when creating a new .NET solution or project, adding a project to a solution, writing or editing csproj files, choosing target frameworks, or wiring application startup and hosting. Carries the ordered new-solution bootstrap checklist (which root file each skill owns, in creation order) and bundled .slnx / library .csproj / test .csproj / LICENSE.md templates.
+metadata:
+  version: "6.0.1"
 ---
 
 # .NET solution & project setup
-
-**Version: dotnet-solution-setup v6.**
 
 ## New solution bootstrap — the ordered checklist
 

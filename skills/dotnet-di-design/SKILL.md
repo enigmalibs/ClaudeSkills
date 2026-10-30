@@ -1,6 +1,8 @@
 ---
 name: dotnet-di-design
 description: Use when designing or refactoring C# classes and services — constructor dependencies, static vs injected helpers, choosing service lifetimes, or registering services with Microsoft.Extensions.DependencyInjection.
+metadata:
+  version: "1.0.1"
 ---
 
 # Reusable, DI-friendly class design

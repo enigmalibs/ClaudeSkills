@@ -1,11 +1,11 @@
 ---
 name: review-standards
 description: Use when running the house /review code review — the severity scale, the review dimensions and their rulebook, the finding and report shapes, and the reference checklists for SOLID, XAML, logging, exceptions, security, style, performance and tests. Loaded by /review.
+metadata:
+  version: "1.2.0"
 ---
 
 # Review standards — the house code-review checklist
-
-**Version: review-standards v1.**
 
 What `/review` measures code against and how it writes what it found. The house convention skills are the rulebook; this skill adds the severity scale, the dimensions, the shapes `/interview` and `/vibe` consume, and checklists only for what no house skill states.
 
@@ -88,7 +88,7 @@ Status is `met`, `partial`, `not met` or `not verifiable` (a manual test, an ext
 `docs/review/<yyyy-mm-dd>-<scope>.md` in the reviewed repo — `<scope>` is `solution`, the IDs lowercased joined by `-`, or the path's last segment; a same-day rerun overwrites. Its headings, in this order, from `templates/report.md`:
 
 1. `# Code review — <scope> — <date>`
-2. `## Scope & method` — solution, commits or files reviewed, dimensions, rulebook skills with their version lines, inline or sub-agents.
+2. `## Scope & method` — solution, commits or files reviewed, dimensions, rulebook skills with their `metadata.version` (read from each skill's `SKILL.md` frontmatter on disk — its base directory is printed when it loads), inline or sub-agents.
 3. `## Baseline` — `dotnet build` (errors; warnings by analyzer ID) and `dotnet test` (passed / failed / skipped), or why each did not complete.
 4. `## Summary` — a tally table by severity and a three-line verdict.
 5. `## Plan conformance` — work-item scope only.
