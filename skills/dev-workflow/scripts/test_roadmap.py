@@ -220,6 +220,43 @@ class SetStatusTests(ProjectTest):
         self.p.run("set-status", "FEATURE-3A7F-PHASE02", "ABANDONED")
         self.assertEqual(self.base_status(), ("IN PROGRESS", "**Status:** IN PROGRESS"))
 
+    def test_abandoning_a_multi_phase_item_abandons_its_open_phases(self):
+        self.p.write("docs/roadmap.md", phased_roadmap("IN PROGRESS", "IN PROGRESS", "TODO"))
+        self.p.write("docs/plan/FEATURE-3A7F.md", PLAN_MULTI.replace("**Status:** TODO", "**Status:** IN PROGRESS", 2))
+        code, out, _ = self.p.run("set-status", "FEATURE-3A7F", "ABANDONED")
+        self.assertEqual(code, 0)
+        self.assertIn("FEATURE-3A7F-PHASE01: IN PROGRESS -> ABANDONED", out)
+        self.assertIn("FEATURE-3A7F-PHASE02: TODO -> ABANDONED", out)
+        self.assertEqual(self.base_status(), ("ABANDONED", "**Status:** ABANDONED"))
+        self.assertEqual(self.p.text("docs/plan/FEATURE-3A7F.md").count("**Status:** ABANDONED"), 3)
+        self.assertEqual([l.split("|")[3].strip() for l in table_lines(self.p.text("docs/roadmap.md"))[2:]],
+                         ["ABANDONED"] * 3)
+
+    def test_abandoning_an_item_with_a_done_phase_keeps_it_and_the_item_follows_to_done(self):
+        self.p.write("docs/roadmap.md", phased_roadmap("IN PROGRESS", "DONE", "TODO"))
+        self.p.write("docs/plan/FEATURE-3A7F.md", PLAN_MULTI.replace("**Status:** TODO", "**Status:** IN PROGRESS", 1)
+                     .replace("Login flow\n\n**Status:** TODO", "Login flow\n\n**Status:** DONE"))
+        code, out, _ = self.p.run("set-status", "FEATURE-3A7F", "ABANDONED")
+        self.assertEqual(code, 0)
+        self.assertNotIn("PHASE01:", out)
+        self.assertIn("FEATURE-3A7F-PHASE02: TODO -> ABANDONED", out)
+        self.assertIn("FEATURE-3A7F: IN PROGRESS -> DONE", out)
+        self.assertIn("the item follows its phases to DONE", out)
+        self.assertEqual(self.base_status(), ("DONE", "**Status:** DONE"))
+        plan = self.p.text("docs/plan/FEATURE-3A7F.md")
+        self.assertIn("## PHASE01 — Login flow\n\n**Status:** DONE", plan)
+        self.assertIn("## PHASE02 — OAuth providers\n\n**Status:** ABANDONED", plan)
+
+    def test_a_multi_phase_item_refuses_every_other_status(self):
+        for status in ("TODO", "IN PROGRESS", "DONE"):
+            with self.subTest(status=status):
+                self.assertNothingWritten("set-status", "FEATURE-3A7F", status,
+                                          message="flip the phases — the item follows them")
+
+    def test_abandoning_an_item_with_no_open_phase_writes_nothing(self):
+        self.p.write("docs/roadmap.md", phased_roadmap("DONE", "DONE", "ABANDONED"))
+        self.assertNothingWritten("set-status", "FEATURE-3A7F", "ABANDONED", message="no open phase to abandon")
+
     def test_replaces_a_quarantine_note_with_the_bare_status(self):
         self.p.write("docs/plan/BUG-9C2E.md", "# BUG-9C2E\n\n**Status:** IN PROGRESS — quarantined by x: red\n")
         self.p.run("set-status", "BUG-9C2E", "DONE")
@@ -347,6 +384,11 @@ class ShowAndProgressTests(ProjectTest):
         _, out, _ = self.p.run("show", "--next")
         self.assertIn("Nothing to build", out)
         self.assertNotIn("←", out)
+
+    def test_an_abandoned_item_leaves_no_phase_to_build(self):
+        self.p.run("set-status", "FEATURE-3A7F", "ABANDONED")
+        self.assertEqual(self.marked_phases(), (None, None))
+        self.assertIn("Nothing to build", self.p.run("show", "--next")[1])
 
     def test_progress_table(self):
         self.p.run("set-status", "FEATURE-3A7F-PHASE01", "DONE")

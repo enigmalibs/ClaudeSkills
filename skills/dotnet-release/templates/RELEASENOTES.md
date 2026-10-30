@@ -13,7 +13,9 @@
   rather than adding a second block.
 
   Sub-sections appear only where non-empty, and always in the order given below.
-  This file is repo-root and packed alongside the README, so a link to it from the README resolves.
+  This file is repo-root and NOT packed (the packing ItemGroup carries README.md and LICENSE.md
+  only): the packed README names it in plain text, never as a link, and nuget.org shows
+  PackageReleaseNotes in its own Release Notes tab.
 -->
 
 <!-- ============================ VARIANT A — FIRST RELEASE ============================ -->

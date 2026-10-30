@@ -72,7 +72,7 @@ The release documents themselves are `SKILL.md`'s *Release documents*; this is w
 
 ```markdown
 [![NuGet](https://img.shields.io/nuget/v/<PackageId>.svg)](https://www.nuget.org/packages/<PackageId>)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE.md)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://licenses.nuget.org/MIT)
 ```
 
 A **Downloads** badge (`nuget/dt`) exists if it is ever wanted, but it is not part of the house set and is **not offered**: on a fresh package it advertises a low count, which is a negative signal.

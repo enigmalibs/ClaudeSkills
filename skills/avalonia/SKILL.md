@@ -1,11 +1,11 @@
 ---
 name: avalonia
 description: Use when creating or modifying an Avalonia application — project setup and packages, bootstrapping and DI/IHost wiring, XAML bindings, views and ViewModels, or desktop app lifetime.
+metadata:
+  version: "2.0.1"
 ---
 
 # Avalonia 12 conventions
-
-**Version: avalonia v2.**
 
 House rule: new Avalonia work targets **Avalonia 12** — never start new work on 11. Apps target `net10.0` (Avalonia 12 requires .NET 8+). MVVM uses CommunityToolkit.Mvvm per the communitytoolkit-mvvm skill — not ReactiveUI.
 

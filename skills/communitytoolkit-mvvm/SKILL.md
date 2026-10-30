@@ -1,6 +1,8 @@
 ---
 name: communitytoolkit-mvvm
 description: Use when writing or modifying ViewModels, observable properties, or commands with CommunityToolkit.Mvvm (MVVM Toolkit) — including whenever [ObservableProperty], [RelayCommand], or INotifyPropertyChanged boilerplate is about to be written.
+metadata:
+  version: "1.0.2"
 ---
 
 # CommunityToolkit.Mvvm — explicit MVVM conventions
@@ -12,8 +14,10 @@ House rule: **no MVVM source generators.** Never use `[ObservableProperty]`, `[R
 C# `field` keyword + `SetProperty`, single-line property:
 
 ```csharp
-public string Test { get; set => SetProperty(ref field, value); }
+public string Test { get; set => SetProperty(ref field, value); } = string.Empty;
 ```
+
+A non-nullable reference-type property gets an initializer (`= string.Empty;`, `= [];`, `= new();`) or an assignment in the constructor; where `null` is a legitimate value, declare it `T?` instead. Without one, `Nullable` + `TreatWarningsAsErrors` fail the build with CS9264. Value types need neither.
 
 If side effects or dependent change notifications are needed, expand to a block body but keep the same `field`-based shape:
 
@@ -28,7 +32,7 @@ public string FirstName
             OnPropertyChanged(nameof(FullName));
         }
     }
-}
+} = string.Empty;
 ```
 
 No manually declared backing fields — `field` is the backing store.
@@ -56,7 +60,8 @@ If `CanExecute` depends on observable state, call `NotifyCanExecuteChanged()` on
 
 | Mistake | Fix |
 |---|---|
-| `[ObservableProperty] private string _name;` | Explicit property: `{ get; set => SetProperty(ref field, value); }` |
+| `[ObservableProperty] private string _name;` | Explicit property: `public string Name { get; set => SetProperty(ref field, value); } = string.Empty;` |
+| Non-nullable `string` property without an initializer | CS9264 under `Nullable` + `TreatWarningsAsErrors`: add `= string.Empty;` (or assign it in the constructor, or declare `string?`) |
 | `[RelayCommand] private void Save()` | Get-only `SaveCommand` property + private `OnSave` handler |
 | Manual backing field `private string _test;` | The `field` keyword is the backing store |
 | Public command handler methods | Handlers stay private; only the `...Command` property is public |

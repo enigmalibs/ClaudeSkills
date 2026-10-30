@@ -1,11 +1,11 @@
 ---
 name: enigma-icons-avalonia
 description: Use when adding, rendering, theming or binding icons in an Avalonia app with the Enigma.Icons.Avalonia library (NuGet packages Enigma.Icons.Avalonia / Enigma.Icons.Phosphor / Enigma.Icons) — including adopting it into an app that does not reference it yet — spanning the ei:Icon control, the {ei:IconGeometry} and {ei:IconImage} markup extensions, ToGeometry / ToDrawing / ToDrawingImage, the 1,512 × 6 Phosphor artwork set, SvgIconSet over your own .svg files, and implementing a custom IIconSet.
+metadata:
+  version: "3.0.1"
 ---
 
 # Enigma.Icons.Avalonia
-
-**Version: enigma-icons-avalonia v3.**
 
 Icons for **Avalonia 12**, published on nuget.org as `Enigma.Icons.Avalonia` **1.0.0** (with
 `Enigma.Icons.Phosphor` and `Enigma.Icons`, also 1.0.0) — repo `josueclement/Enigma.Icons`. Targets

@@ -1,11 +1,11 @@
 ---
 name: dotnet-solution-config
 description: Use when setting up a .NET solution's shared root config — the full C# .editorconfig (code style, naming, analyzer severities), Directory.Build.props (solution-wide build defaults), Directory.Packages.props (Central Package Management), and global.json (SDK pin + the Microsoft Testing Platform test runner).
+metadata:
+  version: "6.0.1"
 ---
 
 # .NET solution shared config
-
-**Version: dotnet-solution-config v6.**
 
 Give a .NET solution one authoritative code-style file and centralized build/package defaults at the solution root.
 

@@ -1,6 +1,8 @@
 ---
 name: dotnet-async
 description: Use when writing async C# — Task-returning APIs, cancellation handling, background work in hosted apps, or updating UI-bound state from background threads.
+metadata:
+  version: "1.0.1"
 ---
 
 # Async & cancellation conventions

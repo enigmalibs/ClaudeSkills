@@ -6,7 +6,9 @@ Three service + host-control pairs sharing one pattern:
    MainWindow's root `Panel`, `x:Name`d (see `setup.md`).
 2. `RegisterHost(...)` it once at startup in `App.OnFrameworkInitializationCompleted`, **before the
    window is shown**.
-3. Inject the service into a ViewModel and `await service.ShowAsync(...)`.
+3. Inject the service into a ViewModel and call `service.ShowAsync(...)`. `await` it for a dialog
+   (it returns the result) or an overlay (it completes at once); an InfoBar's task completes only
+   when the bar closes, so a command starts it without awaiting (*InfoBar* below).
 
 This wiring is the whole contract. A service whose host is still unregistered throws
 `InvalidOperationException` from every `Show*` call — `"ContentDialog host has not been registered. Call
@@ -169,8 +171,14 @@ Action<InfoBar>? configure = null)`, which shows a bar that closes itself. The d
 `configure`, so the argument wins; an invalid one throws `ArgumentOutOfRangeException` before the host is
 touched.
 
+**The task `ShowAsync` returns completes when the bar closes**, not when it opens: when the user
+dismisses it, `HideAsync` closes it, or its `DisplayDuration` elapses. Awaiting it holds the caller
+until then — an `AsyncRelayCommand` stays busy (and disabled) until the user dismisses an untimed bar.
+
 **`InfoBar`** (`…Controls.InfoBar`) — `Title` : `string?`, `Message` : `string?`, `Severity` :
-`InfoBarSeverity`, `IsOpen` : `bool`, `DisplayDuration` : `TimeSpan?`. **Enum**:
+`InfoBarSeverity`, `IsOpen` : `bool`, `DisplayDuration` : `TimeSpan?`; `Task ShowAsync()` (opens the bar;
+completes when it closes), `void Close()`, `Task CloseAsync()` (closes it; returns a completed task) and
+`event EventHandler? Closed`. **Enum**:
 `InfoBarSeverity { Info, Success, Warning, Error }`; each severity resolves its own
 `Enigma*Background` / `Enigma*Border` brush pair.
 
@@ -182,26 +190,37 @@ bar closes any other way. A value must be `null`, or greater than zero and at mo
 milliseconds; anything else throws `ArgumentException` where it is set. `InfoBarService.ShowAsync` resets
 it between messages, so a timed message never makes the next one timed.
 
+In a command handler, start the bar and do not await it — the handler returns while the message
+stays up:
+
 ```csharp
 using Enigma.Avalonia.Desktop.Controls.InfoBar;
 
-await _infoBarService.ShowAsync(bar =>
+_ = _infoBarService.ShowAsync(bar =>
 {
     bar.Title = "Success";
     bar.Message = "The operation completed successfully.";
     bar.Severity = InfoBarSeverity.Success;
 });
-// later: await _infoBarService.HideAsync();
 ```
 
-A bar that closes itself after five seconds:
+To take it down from code, call `await _infoBarService.HideAsync();` from another handler — that
+also completes the pending `ShowAsync` task. Keep the task (`Task closed = _infoBarService.ShowAsync(…);`)
+instead of discarding it when something must happen once the bar has closed, and `await` the call
+itself only in a flow that must wait for the user to dismiss the bar before it goes on.
+
+A discarded task also discards its exception: `InfoBarService.ShowAsync` is `async`, so the
+unregistered-host `InvalidOperationException` surfaces only through the task. Register the host at
+startup (above) and it never arises.
+
+A bar that closes itself after five seconds — awaited, it would hold the caller for those five:
 
 ```csharp
 using System;
 using Enigma.Avalonia.Desktop.Controls.InfoBar;
 using Enigma.Avalonia.Desktop.Services;   // InfoBarServiceExtensions — the TimeSpan overload
 
-await _infoBarService.ShowAsync(TimeSpan.FromSeconds(5), bar =>
+_ = _infoBarService.ShowAsync(TimeSpan.FromSeconds(5), bar =>
 {
     bar.Message = "Saved.";
     bar.Severity = InfoBarSeverity.Success;
@@ -232,6 +251,9 @@ public class MyPageViewModel(
 - **`ShowAsync` before `RegisterHost`** → `InvalidOperationException`. Wire all three hosts at startup.
 - **Treating a dismissal as `Close`** → `Escape` and scrim clicks yield `DialogResult.None`. Check for
   `Primary`.
+- **Awaiting an InfoBar in a command** → the command stays busy (an `AsyncRelayCommand` disabled) until
+  the bar closes — for an untimed bar, until the user dismisses it. Start it with
+  `_ = _infoBarService.ShowAsync(…)`.
 - **Setting the six size properties inside `configure`** → they are not reset between dialogs, so set
   them once on the host in XAML.
 - **Not wrapping overlay work in `try`/`finally`** → an exception mid-task leaves the overlay open and

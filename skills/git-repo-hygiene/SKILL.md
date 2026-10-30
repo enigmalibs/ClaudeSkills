@@ -1,11 +1,11 @@
 ---
 name: git-repo-hygiene
 description: Use when setting up or normalizing a .NET/Visual Studio git repository's text configuration — creating a .gitignore, .gitattributes, and .editorconfig, or fixing CRLF/LF line-ending churn (mixed endings, whole-file diffs) with git renormalize.
+metadata:
+  version: "2.0.1"
 ---
 
 # git-repo-hygiene
-
-**Version: git-repo-hygiene v2.**
 
 Give a .NET repo consistent, cross-platform text: LF-normalized files, correct binary handling, a Visual Studio ignore set, and shared editor defaults.
 

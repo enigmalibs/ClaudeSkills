@@ -1,17 +1,17 @@
 ---
 name: dev-workflow
 description: Use when planning or implementing tracked work items under this house dev workflow — the roadmap registry (docs/roadmap.md) and its roadmap.py script, per-item plan files (docs/plan/<ID>.md), completion records (docs/done/<ID>.md), FEATURE-HHHH/BUG-HHHH/CODE-REVIEW-HHHH work-item IDs, branch naming, and, in its build-flow reference, the Definition of Done and multi-phase progress reporting. Loaded by the /interview, /build, /vibe and /bulk commands; apply it whenever allocating a work-item ID, writing a plan file, branching for a dev, or reporting a dev as done.
+metadata:
+  version: "9.2.0"
 ---
 
 # Dev workflow — house planning, tracking & version-control standards
-
-**Version: dev-workflow v9.**
 
 ## Hard rules
 
 - **Never commit changes yourself** — the user commits (*Version Control*).
 - **A build branches from the current `HEAD`, never from the default branch** (`reference/build-flow.md`).
-- **Never mark a dev `DONE` with a failing build or failing tests** (`reference/build-flow.md`).
+- **Never mark a dev `DONE` with a failing build or a failing test the baseline did not have** (`reference/build-flow.md`).
 - **Line endings are recommendation-only** — never fixed in a dev, never asked about (*Line endings*).
 - **Every open question ends with the `None of these — I'll describe it` option** (*Asking questions*).
 - Roadmap edits, status flips, footnotes, IDs and progress tables go through `scripts/roadmap.py` (*roadmap.md*).
@@ -78,7 +78,7 @@ One summary table — never plan details — with the columns ID · Title · Sta
 | Subcommand | Does |
 |---|---|
 | `add ID "Title" [--phase "Title"]… [--status "IN PROGRESS"]` | appends the item and phase rows (`TODO`; a build starts them `IN PROGRESS`) |
-| `set-status ID[-PHASENN] STATUS` | flips the row and the plan's matching Status line; the base follows its phases (rule above) |
+| `set-status ID[-PHASENN] STATUS` | flips the row and the plan's matching Status line; the base follows its phases (rule above), so a multi-phase base ID takes only `ABANDONED`, which abandons its open phases |
 | `fmt [--check]` | re-pads the table; other text untouched |
 | `new-id TYPE` · `show [--next]` · `progress ID` | an ID · the table, marking the recommended build · a phase progress table |
 | `note ID[-PHASENN] 'TEXT'` · `note --remove ID[-PHASENN]` | adds — or replaces in place — the one-line footnote ``> `ID` TEXT`` beneath the table, a blank line apart from the others · removes it. Single-quote `TEXT`: it usually holds backticks, which bash and PowerShell expand inside double quotes |
@@ -106,7 +106,7 @@ Aim for about 40 lines for a single-phase dev: record what a reviewer cannot rea
 
 ### Abandoning or changing direction
 
-Never delete a dropped item's row. Set its status to `ABANDONED` (`set-status`) and give the reason — and the replacing item's ID, if any — as a footnote beneath the table, keyed by the ID (`note`); mirror the note at the top of its plan file. (A sentence in the Status cell would widen that column for every row.) A dropped phase is abandoned the same way, keyed by its phase ID; the item's row then follows its phases (*roadmap.md*).
+Never delete a dropped item's row. Set its status to `ABANDONED` (`set-status`) and give the reason — and the replacing item's ID, if any — as a footnote beneath the table, keyed by the ID (`note`); mirror the note at the top of its plan file. (A sentence in the Status cell would widen that column for every row.) A dropped phase is abandoned the same way, keyed by its phase ID; the item's row then follows its phases (*roadmap.md*). Abandoning a multi-phase item — `set-status <base ID> ABANDONED` — abandons every phase not yet `DONE` or `ABANDONED`, and its row follows them: `ABANDONED`, or `DONE` when a phase was already `DONE`. Its row takes no other status: flip the phases, and the item follows them.
 
 ```
 roadmap.py note FEATURE-4B21 'abandoned — superseded by a simpler approach; replaced by `FEATURE-8D0C`.'

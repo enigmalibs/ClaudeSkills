@@ -1,6 +1,8 @@
 ---
 name: wpf
 description: Use when creating or modifying a WPF application — project setup, entry point and App.xaml wiring, IHost/DI integration, or resolving windows and ViewModels at startup.
+metadata:
+  version: "1.0.1"
 ---
 
 # WPF conventions

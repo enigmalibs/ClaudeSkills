@@ -7,6 +7,11 @@
     {{LIB_DIR}}      packable library directory       e.g. src/Enigma.Cryptography/
     {{DEFAULT_BRANCH}} default/published branch       e.g. main or master
   Tag form: match the repo's existing `git tag`s; default to bare X.Y.Z when the repo has none.
+  Test form: keep `dotnet test --solution {{SOLUTION}}` when global.json sets
+  "test": { "runner": "Microsoft.Testing.Platform" }; otherwise (VSTest mode, where --solution fails
+  with MSB1001) write `dotnet test {{SOLUTION}}`. No solution: test the test project instead —
+  `dotnet test --project <tests csproj>` (MTP) or `dotnet test <tests csproj>` (VSTest), never the
+  library csproj. Keep the one form that applies and drop the trailing "VSTest mode" comment.
 -->
 # Release runbook
 
@@ -33,7 +38,7 @@ Run from the repository root, on the branch that will be merged:
       ```
 - [ ] Full test suite green:
       ```bash
-      dotnet test --solution {{SOLUTION}} -c Release
+      dotnet test --solution {{SOLUTION}} -c Release   # VSTest mode: dotnet test {{SOLUTION}} -c Release
       # If the test apphost can't find the runtime, prefix: DOTNET_ROOT=~/.dotnet
       ```
 - [ ] README samples and any CLI reference verified against the built version.

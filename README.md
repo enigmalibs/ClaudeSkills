@@ -5,7 +5,7 @@ House slash commands and skills for [Claude Code](https://claude.com/claude-code
 ## What's inside
 
 - **5 slash commands** — `/interview`, `/build`, `/vibe`, `/bulk`, `/review` — that you run by typing them.
-- **17 skills** — instructions Claude loads on demand: 3 workflow skills the commands depend on, 11 .NET and desktop convention skills, and 3 tooling skills.
+- **16 skills** — instructions Claude loads on demand: 3 workflow skills the commands depend on, 11 .NET and desktop convention skills, and 2 tooling skills.
 - **`roadmap.py`** — a standard-library Python script that keeps the roadmap table and statuses consistent.
 
 ```
@@ -24,7 +24,7 @@ ClaudeSkills/
 │   ├── vibe-workflow/
 │   ├── review-standards/
 │   └── …                        one folder per skill, SKILL.md plus optional
-│                                reference/, templates/, scripts/, examples/
+│                                reference/, templates/, scripts/
 └── docs/                        this repository's own roadmap, plans and
                                  completion records (the workflow, applied to itself)
 ```
@@ -110,8 +110,8 @@ Work is **planned first and built later**. Planning produces a plan file that is
 
 - **Work items** are `FEATURE-HHHH`, `BUG-HHHH` or `CODE-REVIEW-HHHH`, where `HHHH` is random hex (`FEATURE-3A7F`). A large item is split into phases — `FEATURE-3A7F-PHASE01`, `-PHASE02`, … — and a code review gets one phase per finding, most severe first.
 - **A dev** is one deliverable: a single-phase item or one phase. Each dev gets its own branch, cut from your current `HEAD` (never from the default branch): `feature/feature-3a7f-phase01-<slug>`, `bugfix/bug-9c2e-<slug>`, `review/code-review-7f10-<slug>`.
-- **Statuses** are `TODO`, `IN PROGRESS`, `DONE` and `ABANDONED`. Dropped items are never deleted: they become `ABANDONED` with a footnote saying why.
-- **Definition of Done**: the build succeeds with zero warnings, the whole test suite passes (new tests included), every acceptance criterion is met, the statuses are updated, and the completion record is written.
+- **Statuses** are `TODO`, `IN PROGRESS`, `DONE` and `ABANDONED`. Dropped items are never deleted: they become `ABANDONED` with a footnote saying why. A multi-phase item's row follows its phases; abandoning the item abandons every phase still open.
+- **Definition of Done**: the build adds no warning and the test suite no failure beyond the **baseline** taken before the dev's first change (a clean baseline means zero warnings and every test passing, new tests included), every acceptance criterion is met, the statuses are updated, and the completion record is written. Pre-existing warnings and failures are left alone and listed in the record as follow-ups.
 - **Commits** follow conventional commits scoped by the base ID: `feat(FEATURE-3A7F): add login flow (PHASE01)`, `fix(BUG-9C2E): …`, `docs(roadmap): plan …`.
 
 The full rules live in [`skills/dev-workflow/SKILL.md`](skills/dev-workflow/SKILL.md) and its [build-flow reference](skills/dev-workflow/reference/build-flow.md).
@@ -141,13 +141,14 @@ Classifies the draft as a `FEATURE`, `BUG` or `CODE-REVIEW`, explores the codeba
 
 ### `/build` — build one planned dev
 
-With an ID, builds that item's next `TODO` / `IN PROGRESS` phase (or the given phase). Without one, it prints the roadmap with the recommended item marked and asks which ID to build. It sanity-checks the plan against the code and stops to ask if they have drifted. Then it branches, implements, meets the Definition of Done, offers to refresh any user-facing docs the change made stale, and prints the commit message. **You commit**; then run `/build` again for the next dev. It also finishes a dev that `/vibe` or `/bulk` quarantined.
+With an ID, builds that item's next `TODO` / `IN PROGRESS` phase (or the given phase). Without one, it prints the roadmap with the recommended item marked and asks which ID to build. An item or phase already `DONE` or `ABANDONED` is never rebuilt. It sanity-checks the plan against the code and stops to ask if they have drifted. Then it takes the build/test baseline, branches, implements, meets the Definition of Done, offers to refresh any user-facing docs the change made stale, and prints the commit message. **You commit**; then run `/build` again for the next dev. It also finishes a dev that `/vibe` or `/bulk` quarantined.
 
 ### `/vibe` and `/bulk` — unattended runs
 
 `/vibe <spec>` answers its own interview with the options it would have recommended (recording each decision in the plan) and builds the result. `/bulk` builds items that `/interview` already planned: every unowned `TODO` row, or the base IDs you pass. Both:
 
-- work on a **run branch** `<feature|bugfix|review>/<yyyy-mm-dd>-<slug>` cut from your current `HEAD`, and merge each dev into it with `--no-ff`;
+- work on a **run branch** `<feature|bugfix|review>/<yyyy-mm-dd>-<slug>` cut from your current `HEAD`, and fast-forward each dev into it (`--ff-only`, falling back to `--no-ff` only if the run branch moved), so it stays linear — the planning or claim commit, then one commit per dev — and reads as one bubble once you merge it;
+- take **one build/test baseline per run**, before the first dev, and measure every dev against it;
 - **never push**, never write to the branch you started from or to the default branch, and add no attribution trailer to their commits;
 - give each dev at most **3 fix cycles**; a dev still red after that is **quarantined** (its branch left unmerged, a roadmap footnote explains why) and the run moves on — finish it later with `/build <ID>`;
 - end with a report listing every dev and the commands to review, merge and clean up;
@@ -157,7 +158,7 @@ They need a permission mode that does not prompt for file writes and `git commit
 
 ### `/review` — .NET code review
 
-Builds and tests the solution as a baseline, then reviews the whole solution, a path, or the code of the work items you name. It checks SOLID, XAML, logging, exceptions, async, MVVM, tests, security, style and performance against the house skills, and writes `docs/review/<yyyy-mm-dd>-<scope>.md` plus an HTML rendering. Findings carry a severity (Critical → Low), their locations and a recommended fix. It is read-only otherwise, and its report is the input `/interview` and `/vibe` turn into a `CODE-REVIEW` item. Add "use sub-agents" to the argument for a parallel review.
+Builds and tests the solution as a baseline (`dotnet test --solution` when `global.json` selects the Microsoft Testing Platform runner, the positional form in VSTest mode), then reviews the whole solution, a path, or the code of the work items you name — their commits in `HEAD`'s history. It checks SOLID, XAML, logging, exceptions, async, MVVM, tests, security, style and performance against the house skills, and writes `docs/review/<yyyy-mm-dd>-<scope>.md` plus an HTML rendering. Findings carry a severity (Critical → Low), their locations and a recommended fix. It is read-only otherwise, and its report is the input `/interview` and `/vibe` turn into a `CODE-REVIEW` item. Add "use sub-agents" to the argument for a parallel review.
 
 ## Skills
 
@@ -193,12 +194,12 @@ Skills load automatically when a task matches their description, or when a comma
 |--------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
 | [`dotnet-release`](skills/dotnet-release/SKILL.md)     | A NuGet release as a work item: version bump, release docs from templates, pack/tag/push runbook, MSI profile |
 | [`git-repo-hygiene`](skills/git-repo-hygiene/SKILL.md) | `.gitignore`, `.gitattributes` and a minimal `.editorconfig` for .NET repos; fixing CRLF/LF churn             |
-| [`draw-diagram`](skills/draw-diagram/SKILL.md)         | New editable `.draw` diagrams for the Draw app: UML class, ER, use-case, flowchart, free-form schema          |
 
 ## Maintaining this repository
 
-- **A command** is `commands/<name>.md`: frontmatter with `description`, `argument-hint` and `disable-model-invocation: true`, then the prompt. Its first output line announces its version (`Using build v10 by …`) — bump it with every change.
-- **A skill** is `skills/<name>/SKILL.md`: frontmatter with `name` (the folder name) and `description` — the text Claude matches tasks against, so keep it precise — then the instructions. Supporting files go in `reference/`, `templates/`, `scripts/` or `examples/` beside it. Where a skill has a `**Version: <name> vN.**` line, bump it with every behavioural change.
+- **A command** is `commands/<name>.md`: frontmatter with `description`, `argument-hint`, `disable-model-invocation: true` and `metadata.version`, then the prompt.
+- **A skill** is `skills/<name>/SKILL.md`: frontmatter with `name` (the folder name), `description` — the text Claude matches tasks against, so keep it precise — and `metadata.version`, then the instructions. Supporting files go in `reference/`, `templates/` or `scripts/` beside it.
+- **Versions** are semantic, in the frontmatter (`metadata:` → `version: "10.2.0"`) — never in the body or the command's output. Bump with every change: patch for a fix or rewording, minor for new or changed behaviour, major for a breaking one. `/review` reads them from disk to name its rulebook in the report.
 - **Keep commands and skills in step**: a command refers to skills, sections and scripts by name, so rename them together.
 - **Test `roadmap.py`** after changing it:
 

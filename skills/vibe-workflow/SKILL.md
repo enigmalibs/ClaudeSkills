@@ -1,11 +1,11 @@
 ---
 name: vibe-workflow
 description: Use when running the autonomous /vibe workflow — the override layer on top of dev-workflow that lets a run decide instead of ask, commit and merge its own devs on a category-prefixed <feature|bugfix|review>/<date>-<slug> run branch, bound fix attempts, quarantine red devs, resume after a session dies, and forbid pushes, sub-agents, attribution trailers, and any write to the starting branch. Loaded by the autonomous run commands /vibe and /bulk only — never by /interview or /build.
+metadata:
+  version: "7.2.0"
 ---
 
 # Vibe workflow — autonomy overrides on top of dev-workflow
-
-**Version: vibe-workflow v7.**
 
 **Hard rules — they hold for the whole run:**
 - **Decide, never ask or pause** (§2).
@@ -50,7 +50,7 @@ Supersedes the branching rules of *Building a dev* (build-flow), *Version Contro
   - The slug is ≤ 4 kebab-case tokens: `/vibe` derives it from the prompt; `/bulk` joins the lowercased base IDs with `-` (≤ 3 items), else `<first-id>-plus-<N>`.
 - A branch is a run branch when some `docs/plan/*.md` carries `**Run:** <that branch>` (§9) — by marker, not by name, so a look-alike user branch is never taken for a run and a legacy `vibe/…` / `bulk/…` run still resumes.
 - The first commit claims the run's items. `/vibe`: the planning commit `docs(roadmap): plan <ID>[, <ID>…]` with the rows, plan files and any `docs/` structure it created — planning artifacts live on the run branch, not the starting `HEAD`. `/bulk`: the claim commit `docs(plan): claim <ID>[, <ID>…] for <run branch>`, adding only each plan file's `**Run:**` marker.
-- Each dev branch is named per `dev-workflow` and cut from the run-branch tip, never from another dev branch. Once done and committed: `git switch <run branch>`, `git merge --no-ff <dev branch>` (default message); the next dev branch starts from the new tip.
+- Each dev branch is named per `dev-workflow` and cut from the run-branch tip, never from another dev branch. Once done and committed: `git switch <run branch>`, `git merge --ff-only <dev branch>`; the next dev branch starts from the new tip. The run branch stays linear — its claim or planning commit, then one commit per dev — so a finished run, merged with a merge commit (the §11 *Merge* line), reads as one bubble.
 - The starting branch/commit and the default branch are never checked out for editing, committed to or merged into. Everything a run produces is reachable from the run branch or from an unmerged (quarantined) dev branch.
 
 ## §4 — Commits are yours
@@ -64,7 +64,7 @@ Supersedes "never commit changes yourself" and "between devs, pause".
 
 ## §5 — Allowed and forbidden git operations
 
-- Allowed: every read-only command (`status`, `log`, `diff`, `branch --list`, `rev-parse`, `show`) · `switch -c <run branch>` / `switch -c <dev branch>` · `switch` between the run's own branches · `add <explicit paths>` · `commit` · `merge --no-ff <dev branch>` into the run branch.
+- Allowed: every read-only command (`status`, `log`, `diff`, `branch --list`, `rev-parse`, `show`) · `switch -c <run branch>` / `switch -c <dev branch>` · `switch` between the run's own branches · `add <explicit paths>` · `commit` · `merge --ff-only <dev branch>` into the run branch, and `merge --no-ff <dev branch>` only as the §6 step 8 fallback.
 - Forbidden: `push`, in any form, to any remote · any write to the starting branch or the default branch · `reset --hard`, `clean`, `stash`, `rebase` · `restore` / `checkout --` on files the run did not create · `--force` / `-f` on anything · `branch -d` / `branch -D`, `tag`, `remote`, `config`.
 
 A step that needs a forbidden operation gets no workaround: quarantine the dev (§6) or stop the run (§10), and say why.
@@ -77,11 +77,13 @@ While the roadmap, re-read from disk, has a run item (§9) with a `TODO` item or
 2. From the run branch with a clean tree, `git switch -c <dev branch>` (§3). If that branch already exists — a session died mid-dev — `git switch` to it instead and act per the §9 table.
 3. `roadmap.py set-status <full ID> "IN PROGRESS"` — the roadmap row and the plan file.
 4. Check the plan against the files it targets (a drifted plan is adapted, §2), then implement to its acceptance criteria with the convention skills, noting each decision.
-5. Build with zero warnings and run the whole suite, within the fix budget below; still red after the 3rd cycle → quarantine and continue from the run branch.
+5. Build and run the whole suite to the Definition of Done's criteria 1–2, measured against the run's baseline (below), within the fix budget below; still red after the 3rd cycle → quarantine and continue from the run branch.
 6. Green: `roadmap.py set-status <full ID> DONE` (the item flips with its final phase); write `docs/done/<full ID>.md` (inherited shape + `## Decisions taken at build time`); run the §7 sweep.
 7. Read `git status --porcelain`, stage explicitly, and commit in the inherited format — title and bulleted description only (§4).
-8. `git switch <run branch>`, then `git merge --no-ff <dev branch>`.
+8. `git switch <run branch>`, then `git merge --ff-only <dev branch>`. If it refuses — the run branch moved under the run — `git merge --no-ff <dev branch>` (default message), add a line saying so under the done doc's *Deviations & follow-ups*, and commit it `docs(<base ID>): record the merge fallback for <full ID>`.
 9. Print `roadmap.py progress <base ID>` (multi-phase) and the commit title/description; go straight on.
+
+**Baseline** (extends the inherited *Definition of Done*): taken once per run, not per dev — on the run branch, before the first dev branch is cut; its tree is the starting `HEAD`'s plus the planning or claim commit's docs. Every dev of the run is measured against it. The run's first done doc records it; later done docs cite that doc. A resumed run whose done docs carry none takes it again on the run branch before its next dev branch; a dev resumed from a dirty tree before then is held to the strict rule (zero warnings, every test passing).
 
 **Fix budget** (extends the inherited *Definition of Done*): at most 3 cycles per dev — a cycle is one fix attempt followed by a full build and the whole suite; the first run, before any fix, is not one. There is never a 4th. Quarantine, when the 3rd cycle is still red — the dev branch keeps the full record, the run branch a one-line summary that `/build` resumes from:
 
@@ -120,7 +122,7 @@ Every plan file a run owns carries, directly after its header block (the consecu
 |---|---|---|---|
 | dev branch | any | its plan status line reads `IN PROGRESS — quarantined by …` | quarantined, never rebuilt: `HEAD` not yet the ` — QUARANTINED` commit → resume the quarantine at its step 2; `HEAD` is it and the tree is clean → at its step 3 (steps 4–5 only if the run branch lacks the footnote); `HEAD` is it and the tree is dirty → stop with the §10 *dirty working tree* message |
 | dev branch | dirty | — | continue that dev from the working tree (re-read the plan + `git diff`) → §6 step 5 |
-| dev branch | clean | `docs/done/<full ID>.md` in `HEAD` | its commit exists → switch to the run branch, `merge --no-ff`, continue the loop |
+| dev branch | clean | `docs/done/<full ID>.md` in `HEAD` | its commit exists → switch to the run branch, `merge --ff-only` (fallback per §6 step 8), continue the loop |
 | dev branch | clean | row `TODO`, `HEAD` = the run-branch tip | the session died before the status flip → §6 step 3 |
 | dev branch | clean | no done doc, row `IN PROGRESS` | nothing implemented yet → §6 step 4 |
 | dev branch | clean | anything else | stop with the §10 *unrecognized resume state* message |
@@ -182,3 +184,4 @@ A `/bulk` report adds, in no-argument mode, a `Skipped:` line after `Quarantined
 | Writing `docs/done/<ID>.md` for a quarantined dev | Quarantined is not done — on the run branch the row and its footnote carry the state (§6) |
 | `/bulk` picking up an `IN PROGRESS` row, or a plan file with another run's marker | Only unowned `TODO` rows are selectable (§9, §10) |
 | Trusting conversation memory about which devs are done after a summarization | Re-read the roadmap and plan files from disk (§9) |
+| Merging a dev into the run branch with `--no-ff` | `--ff-only`; `--no-ff` is only the fallback (§6 step 8) |

@@ -4,7 +4,8 @@
   roadmap.py [--root DIR] COMMAND ...        DIR holds docs/roadmap.md (default: the nearest one above the
                                              current directory); --root may also follow the COMMAND
   fmt [--check]                             re-pad the registry table
-  set-status ID STATUS                       flip a row and its plan file's **Status:** line, then fmt
+  set-status ID STATUS                       flip a row and its plan file's **Status:** line, then fmt; a
+                                             multi-phase base ID takes only ABANDONED, which abandons its open phases
   add ID TITLE [--phase TITLE]... [--status S]
                                              append an item (and its phase rows), then fmt
   new-id TYPE                                print a fresh, collision-checked work-item ID
@@ -231,7 +232,22 @@ def cmd_set_status(root, full_id, status):
     base_id = roadmap.rows[item][0]
     plan = PlanFile(root / "docs" / "plan" / f"{base_id}.md")
     changes = []  # (row index, plan section or None, new status)
-    if phase is None:
+    hint = ""
+    if phase is None and phases:
+        # A multi-phase item's row follows its phases: only ABANDONED is taken, and it abandons every open phase.
+        if status != "ABANDONED":
+            raise Refused(f"{base_id} is multi-phase: flip the phases — the item follows them "
+                          "(ABANDONED on the item abandons every open phase)")
+        open_phases = [j for j in phases if roadmap.rows[j][2] not in TERMINAL]
+        if not open_phases:
+            raise Refused(f"{base_id}: no open phase to abandon — every phase is DONE or ABANDONED")
+        changes += [(j, roadmap.rows[j][0][2:], "ABANDONED") for j in open_phases]
+        final = "DONE" if any(roadmap.rows[j][2] == "DONE" for j in phases) else "ABANDONED"
+        if roadmap.rows[item][2] != final:
+            changes.append((item, None, final))
+        if final == "DONE":
+            hint = f"\n({base_id} has a DONE phase: the item follows its phases to DONE)"
+    elif phase is None:
         changes.append((item, None, status))
     else:
         changes.append((phase, roadmap.rows[phase][0][2:], status))
@@ -255,7 +271,7 @@ def cmd_set_status(root, full_id, status):
         plan.set_status(index, new)
     plan.file.save()
     roadmap.save()
-    return "\n".join(report) + "\n(roadmap row + plan file updated, table re-padded)"
+    return "\n".join(report) + hint + "\n(roadmap row + plan file updated, table re-padded)"
 
 
 def cmd_add(root, item_id, title, phase_titles, status):
