@@ -25,6 +25,8 @@ ClaudeSkills/
 │   ├── review-standards/
 │   └── …                        one folder per skill, SKILL.md plus optional
 │                                reference/, templates/, scripts/
+├── scripts/                     copy-install / update scripts
+│   └── linux/update.sh
 └── docs/                        this repository's own roadmap, plans and
                                  completion records (the workflow, applied to itself)
 ```
@@ -61,7 +63,9 @@ Get-ChildItem "$repo\skills" -Directory | ForEach-Object {
     New-Item -ItemType SymbolicLink -Force -Path "$HOME\.claude\skills\$($_.Name)" -Target $_.FullName }
 ```
 
-Both scripts **replace** an existing command or skill of the same name. Prefer copies to links? `cp "$REPO"/commands/*.md ~/.claude/commands/ && cp -r "$REPO"/skills/* ~/.claude/skills/` (or `Copy-Item -Recurse`) — then re-copy to update.
+Both scripts **replace** an existing command or skill of the same name.
+
+Prefer copies to links? Run the update script from the clone instead: `"$REPO"/scripts/linux/update.sh`. It copies every command and skill into `~/.claude/` (or `$CLAUDE_CONFIG_DIR`). An item of the same name is replaced whole, so files a skill no longer ships go too. Every other command or skill there is kept, and a link into the clone is left as is. Add `--dry-run` to see what it would do first: it works even when `~/.claude/skills` or `~/.claude/commands` does not exist yet.
 
 Start a new Claude Code session afterwards: the commands appear in the `/` menu, and skills load when a task matches their description.
 
@@ -81,6 +85,8 @@ git -C ~/src/ClaudeSkills pull                       # linked installs update in
 find ~/.claude/commands ~/.claude/skills -maxdepth 1 -type l -lname "$HOME/src/ClaudeSkills/*" -delete
                                                      # uninstall: removes only the links into the clone
 ```
+
+A copy install updates by re-running `scripts/linux/update.sh` after the pull.
 
 ## The dev workflow
 

@@ -1,4 +1,4 @@
-**Status:** TODO
+**Status:** IN PROGRESS
 **Type:** FEATURE (multi-phase)
 **Branches:** feature/feature-c001-phase01-linux-update · feature/feature-c001-phase02-windows-update
 **Run:** feature/2026-10-30-update-scripts
@@ -35,7 +35,7 @@ See *Decisions taken autonomously*. Shared behaviour of both scripts:
 
 ## PHASE01 — Linux update.sh
 
-**Status:** TODO
+**Status:** DONE
 
 ### Steps
 
