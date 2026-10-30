@@ -1,4 +1,4 @@
-**Status:** TODO
+**Status:** IN PROGRESS
 **Type:** FEATURE (multi-phase)
 **Branches:** feature/feature-9e0c-phase01-review-fragment · feature/feature-9e0c-phase02-review-wiring
 **Run:** feature/2026-10-30-review-html-report
@@ -25,7 +25,7 @@ See *Decisions taken autonomously*. In short: the template stays only in `html-r
 
 ## PHASE01 — Review content fragment
 
-**Status:** TODO
+**Status:** DONE
 
 ### Steps
 

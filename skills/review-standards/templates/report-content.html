@@ -1,0 +1,157 @@
+<!--
+review-standards — content fragment for the html-report template. /review writes it after the Markdown report
+and from it only: the same sections, findings, order and text — the Markdown is the source of truth. SKILL.md
+*HTML rendering* builds it into docs/review/<yyyy-mm-dd>-<scope>.html.
+
+Fill it:
+- Replace every {{…}} with the matching text of the Markdown report, as HTML: `code` → <code>, **bold** → <strong>,
+  and & < > escaped as &amp; &lt; &gt; everywhere, C# generics such as List<T> included. No {{ may be left.
+- Repeat each block a comment marks "one per …"; keep the elements and classes as they are.
+- Drop the Plan conformance section when the Markdown has none, and a severity heading with no finding under it.
+  With no finding at all, the Findings section holds only <p>No findings.</p>.
+- Write the fragment without any of this file's comments.
+
+Tones — a status always gets the same badge (add badge--dot in table cells):
+  Severity      Critical badge--error · High badge--warning · Medium badge--info · Low plain badge
+  Conformance   met badge--success · partial badge--warning · not met badge--error · not verifiable plain badge
+A finding's expander is open when it is Critical or High, closed otherwise.
+-->
+<header class="doc-header">
+  <p class="doc-header__eyebrow">Code review</p>
+  <h1 class="doc-title">Code review — {{scope}} — {{yyyy-mm-dd}}</h1>
+  <p class="doc-subtitle">Written by <code>/review</code> with <code>review-standards</code> {{X.Y.Z}}. Read-only: nothing in the repository was changed.</p>
+  <dl class="doc-meta">
+    <div><dt>Scope</dt><dd>{{scope}}</dd></div>
+    <div><dt>Revision</dt><dd><code>{{branch}} @ {{short sha}}</code></dd></div>
+    <div><dt>Date</dt><dd><time datetime="{{yyyy-mm-dd}}">{{d Month yyyy}}</time></dd></div>
+    <div><dt>Findings</dt><dd>{{total findings}}</dd></div>
+  </dl>
+</header>
+
+<article class="doc">
+  <h2>Scope &amp; method</h2>
+  <ul>
+    <li><strong>Solution:</strong> <code>{{path/to/Solution.slnx}}</code> ({{N}} projects) at <code>{{branch}} @ {{short sha}}</code>.</li>
+    <li><strong>Scope:</strong> {{scope line}}.</li>
+    <li><strong>Dimensions:</strong> {{dimensions line}}.</li>
+    <li><strong>Rulebook:</strong> {{rulebook line}}.</li>
+    <li><strong>Mode:</strong> {{mode line}}.</li>
+  </ul>
+
+  <h2>Baseline</h2>
+  <div class="table-wrap">
+    <table>
+      <caption>Build and test baseline, run before the review.</caption>
+      <thead>
+        <tr><th scope="col">Step</th><th scope="col">Result</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row"><code>{{build command}}</code></th><td>{{build result}}</td></tr>
+        <tr><th scope="row"><code>{{test command}}</code></th><td>{{test result}}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>{{baseline line}}</p>
+
+  <h2>Summary</h2>
+  <dl class="kpis">
+    <div class="kpi"><dt class="kpi__label">Critical</dt><dd class="kpi__value">{{critical findings}}</dd></div>
+    <div class="kpi"><dt class="kpi__label">High</dt><dd class="kpi__value">{{high findings}}</dd></div>
+    <div class="kpi"><dt class="kpi__label">Medium</dt><dd class="kpi__value">{{medium findings}}</dd></div>
+    <div class="kpi"><dt class="kpi__label">Low</dt><dd class="kpi__value">{{low findings}}</dd></div>
+  </dl>
+  <div class="table-wrap">
+    <table>
+      <caption>Findings and their locations by severity.</caption>
+      <thead>
+        <tr><th scope="col">Severity</th><th scope="col" class="num">Findings</th><th scope="col" class="num">Locations</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row"><span class="badge badge--error badge--dot">Critical</span></th><td class="num">{{n}}</td><td class="num">{{n}}</td></tr>
+        <tr><th scope="row"><span class="badge badge--warning badge--dot">High</span></th><td class="num">{{n}}</td><td class="num">{{n}}</td></tr>
+        <tr><th scope="row"><span class="badge badge--info badge--dot">Medium</span></th><td class="num">{{n}}</td><td class="num">{{n}}</td></tr>
+        <tr><th scope="row"><span class="badge badge--dot">Low</span></th><td class="num">{{n}}</td><td class="num">{{n}}</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><th scope="row">Total</th><td class="num">{{n}}</td><td class="num">{{n}}</td></tr>
+      </tfoot>
+    </table>
+  </div>
+  <p>{{verdict line 1 — the one thing to fix first}}</p>
+  <p>{{verdict line 2 — the dominant pattern}}</p>
+  <p>{{verdict line 3 — the overall state}}</p>
+
+  <!-- Work-item scope only. One h3 block per work item. -->
+  <h2>Plan conformance</h2>
+  <h3>{{ID}} — {{title}}</h3>
+  <div class="table-wrap">
+    <table>
+      <caption>Acceptance criteria of {{ID}} against the reviewed code.</caption>
+      <thead>
+        <tr><th scope="col">Criterion</th><th scope="col">Status</th><th scope="col">Evidence</th></tr>
+      </thead>
+      <tbody>
+        <!-- One row per criterion. -->
+        <tr><th scope="row">{{1. criterion}}</th><td><span class="badge badge--success badge--dot">met</span></td><td>{{evidence}}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>Outside the plan</strong> — {{outside the plan}}.</p>
+  <p><strong>Done doc vs diff</strong> — {{done doc vs diff}}.</p>
+
+  <h2>Findings</h2>
+  <!-- One h3 per severity with findings, Critical first; under it, one expander per finding, in the Markdown's order. -->
+  <h3>Critical</h3>
+  <div class="expander-group">
+    <details class="expander" id="{{KEY-NN}}" open>
+      <summary><code>{{KEY-NN}}</code> <span>{{finding title}}</span> <span class="badge badge--error">Critical</span></summary>
+      <div class="expander__body">
+        <p><strong>Locations</strong></p>
+        <ul>
+          <!-- One li per location. -->
+          <li><code>{{path:line}}</code></li>
+        </ul>
+        <p><strong>Why it matters</strong> — {{why it matters}}</p>
+        <p><strong>Recommended fix</strong> — {{recommended fix}}</p>
+        <p><strong>Rule</strong> — {{rule}}</p>
+      </div>
+    </details>
+  </div>
+
+  <h3>High</h3>
+  <div class="expander-group">
+    <details class="expander" id="{{KEY-NN}}" open>
+      <summary><code>{{KEY-NN}}</code> <span>{{finding title}}</span> <span class="badge badge--warning">High</span></summary>
+      <div class="expander__body">…the same body as above…</div>
+    </details>
+  </div>
+
+  <h3>Medium</h3>
+  <div class="expander-group">
+    <details class="expander" id="{{KEY-NN}}">
+      <summary><code>{{KEY-NN}}</code> <span>{{finding title}}</span> <span class="badge badge--info">Medium</span></summary>
+      <div class="expander__body">…the same body as above…</div>
+    </details>
+  </div>
+
+  <h3>Low</h3>
+  <div class="expander-group">
+    <details class="expander" id="{{KEY-NN}}">
+      <summary><code>{{KEY-NN}}</code> <span>{{finding title}}</span> <span class="badge">Low</span></summary>
+      <div class="expander__body">…the same body as above…</div>
+    </details>
+  </div>
+
+  <h2>In good shape</h2>
+  <ul>
+    <!-- One li per line. -->
+    <li>{{what the next dev should keep doing, with its <code>path</code>}}</li>
+  </ul>
+
+  <h2>Hand-off</h2>
+  <p>Plan the fixes as a <code>CODE-REVIEW</code> item — one phase per finding you keep:</p>
+  <pre><code>/interview @docs/review/{{yyyy-mm-dd}}-{{scope}}.md</code></pre>
+  <p>Or plan and build it unattended:</p>
+  <pre><code>/vibe @docs/review/{{yyyy-mm-dd}}-{{scope}}.md</code></pre>
+  <p>Then <code>/build &lt;CODE-REVIEW-ID&gt;</code> (one phase at a time) or <code>/bulk</code> (every phase). This report is read-only input: nothing changes until one of those runs.</p>
+</article>
